@@ -1,0 +1,130 @@
+apply plugin: "com.android.application"
+
+import groovy.json.JsonOutput
+
+// Keep development updates compatible with the original installed 0.1.0 APK.
+// Build runners can use a different Java user.home; do not silently use a new key.
+def debugKeyPath = providers.gradleProperty("dropsyncDebugKeystore")
+        .orElse(providers.environmentVariable("DROPSYNC_DEBUG_KEYSTORE"))
+        .getOrElse(new File(System.getenv("USERPROFILE") ?: System.getProperty("user.home"), ".android/debug.keystore").absolutePath)
+def debugKeyFile = file(debugKeyPath)
+def expectedDebugCertificate = "8df0d7408db006304933992e22d2f297ccb82398a07c13d7ffd45d772a529dcc"
+def releaseKeyPath = providers.environmentVariable("DROPSYNC_ANDROID_KEYSTORE").getOrElse("")
+
+android {
+    namespace "com.dropsync.app"
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "com.dropsync.app"
+        minSdk 26
+        targetSdk 35
+        versionCode 11
+        versionName "0.7.0"
+        testInstrumentationRunner "com.dropsync.app.ShareSmoke"
+    }
+
+    signingConfigs {
+        debug {
+            storeFile debugKeyFile
+            storePassword "android"
+            keyAlias "androiddebugkey"
+            keyPassword "android"
+        }
+        release {
+            if (releaseKeyPath) {
+                storeFile file(releaseKeyPath)
+                storePassword System.getenv("DROPSYNC_ANDROID_STORE_PASSWORD")
+                keyAlias System.getenv("DROPSYNC_ANDROID_KEY_ALIAS")
+                keyPassword System.getenv("DROPSYNC_ANDROID_KEY_PASSWORD")
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
+        release {
+            if (releaseKeyPath) signingConfig signingConfigs.release
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    sourceSets {
+        main.assets.srcDirs += layout.buildDirectory.dir("generated/web-assets")
+    }
+}
+
+tasks.register("verifyReleaseSigningConfig") {
+    doLast {
+        if (!releaseKeyPath || !file(releaseKeyPath).isFile() || !System.getenv("DROPSYNC_ANDROID_STORE_PASSWORD") || !System.getenv("DROPSYNC_ANDROID_KEY_ALIAS") || !System.getenv("DROPSYNC_ANDROID_KEY_PASSWORD")) {
+            throw new GradleException("Release builds require the existing production keystore and all DROPSYNC_ANDROID_* signing variables. No unsigned release APK will be produced.")
+        }
+    }
+}
+
+dependencies {
+    // Lightweight Ed25519/X25519 primitives used by the native LAN peer.
+    implementation "org.bouncycastle:bcprov-jdk18on:1.79"
+}
+
+tasks.register("verifyDebugSigningKey") {
+    doLast {
+        if (!debugKeyFile.isFile()) {
+            throw new GradleException("Original DropSync debug keystore missing. Set DROPSYNC_DEBUG_KEYSTORE or -PdropsyncDebugKeystore to the existing key; do not generate a replacement.")
+        }
+        def keyStore = java.security.KeyStore.getInstance(debugKeyFile, "android".toCharArray())
+        def certificate = keyStore.getCertificate("androiddebugkey")
+        def fingerprint = certificate == null ? "" : java.security.MessageDigest.getInstance("SHA-256").digest(certificate.encoded).encodeHex().toString()
+        if (fingerprint != expectedDebugCertificate) {
+            throw new GradleException("DropSync debug certificate does not match the original APK. Use the original debug keystore to preserve update compatibility.")
+        }
+    }
+}
+
+tasks.register("syncWebAssets", Sync) {
+    // Auth values can come from environment variables; never reuse assets generated
+    // by a previous build with different credentials.
+    outputs.upToDateWhen { false }
+    from(rootProject.projectDir.parentFile) {
+        include "index.html", "styles.css", "app.js", "runtime.js", "updates-ui.js", "update-config.json", "project-info.js", "feature-settings.js", "workspace-features.js", "product.js", "auth.js", "auth-config.js", "welcome.html", "welcome.css", "welcome.js", "LICENSE"
+    }
+    into(layout.buildDirectory.dir("generated/web-assets/www"))
+    doLast {
+        def authUrl = providers.gradleProperty("dropsyncAuthUrl")
+                .orElse(providers.environmentVariable("DROPSYNC_AUTH_URL"))
+                .orElse(providers.gradleProperty("dropsyncSupabaseUrl"))
+                .orElse(providers.environmentVariable("DROPSYNC_SUPABASE_URL")).getOrElse("")
+        def authKey = providers.gradleProperty("dropsyncAuthClientKey")
+                .orElse(providers.environmentVariable("DROPSYNC_AUTH_CLIENT_KEY"))
+                .orElse(providers.gradleProperty("dropsyncSupabasePublishableKey"))
+                .orElse(providers.environmentVariable("DROPSYNC_SUPABASE_PUBLISHABLE_KEY")).getOrElse("")
+        def authType = providers.gradleProperty("dropsyncAuthType")
+                .orElse(providers.environmentVariable("DROPSYNC_AUTH_TYPE"))
+                .getOrElse(providers.environmentVariable("DROPSYNC_AUTH_URL").isPresent() ? "dropsync" : "supabase")
+        if (authUrl || authKey) {
+            if (!(authUrl ==~ /https:\/\/[^\s\/]+(?:\/[^\s]*)?/) || !authKey || !(authType in ["dropsync", "supabase"])) {
+                throw new GradleException("Set a valid DROPSYNC_AUTH_URL, DROPSYNC_AUTH_CLIENT_KEY, and DROPSYNC_AUTH_TYPE for a live account build.")
+            }
+            def config = "window.DROPSYNC_AUTH = Object.freeze({ type: ${JsonOutput.toJson(authType)}, url: ${JsonOutput.toJson(authUrl)}, publishableKey: ${JsonOutput.toJson(authKey)}, providers: [\"google\", \"facebook\", \"github\"] });\n"
+            new File(layout.buildDirectory.dir("generated/web-assets/www").get().asFile, "auth-config.js").setText(config, "UTF-8")
+        }
+    }
+}
+
+tasks.configureEach { task ->
+    if (task.name == "preReleaseBuild" || task.name == "validateSigningRelease") task.dependsOn("verifyReleaseSigningConfig")
+    if (task.name == "preDebugBuild" || task.name == "validateSigningDebug") {
+        task.dependsOn("verifyDebugSigningKey")
+    }
+    if ((task.name.startsWith("merge") && task.name.endsWith("Assets")) || task.name.toLowerCase().contains("lint")) {
+        task.dependsOn("syncWebAssets")
+    }
+}

@@ -1,0 +1,1873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DropSync</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%2353B89E'/%3E%3Cpath d='M12 4.8c2.7 3 4.6 5.3 4.6 7.7a4.6 4.6 0 1 1-9.2 0c0-2.4 1.9-4.7 4.6-7.7z' fill='none' stroke='%230E1512' stroke-width='1.7'/%3E%3Cpath d='M12 9.2v5.6M10.2 10.9 12 9.1l1.8 1.8M10.2 13.1 12 14.9l1.8-1.8' fill='none' stroke='%230E1512' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ============ ICON SPRITE ============ -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <defs>
+    <symbol id="i-logo" viewBox="0 0 24 24"><path d="M12 3.4c3.3 3.7 5.6 6.6 5.6 9.4a5.6 5.6 0 1 1-11.2 0c0-2.8 2.3-5.7 5.6-9.4Z"/><path d="M12 8.6v6.8m-2-4.9 2-1.9 2 1.9m-4 3 2 1.9 2-1.9"/></symbol>
+    <symbol id="i-dashboard" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></symbol>
+    <symbol id="i-radar" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><path d="M12 3.5v2M20.5 12h-2"/></symbol>
+    <symbol id="i-swap" viewBox="0 0 24 24"><path d="M7.5 4.5v12m0 0-3-3m3 3 3-3"/><path d="M16.5 19.5v-12m0 0-3 3m3-3 3 3"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M4 8.5 12 4l8 4.5v7L12 20l-8-4.5v-7Z"/><path d="M4 8.5 12 13l8-4.5M12 13v7"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 4 2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.5-4.8 2.5.9-5.4L4.2 9.7l5.4-.8L12 4Z"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19.5c.6-3 2.8-4.8 5.5-4.8s4.9 1.8 5.5 4.8"/><circle cx="16.8" cy="9.5" r="2.6"/><path d="M16.4 14.6c2.3.2 3.8 1.8 4.2 4.1"/></symbol>
+    <symbol id="i-hdd" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="7" rx="1.6"/><rect x="3.5" y="12.5" width="17" height="7" rx="1.6"/><path d="M7 8h.01M7 16h.01"/></symbol>
+    <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M4 9.8C8.6 5.6 15.4 5.6 20 9.8M6.8 12.9c3-2.7 7.4-2.7 10.4 0M9.6 16c1.4-1.2 3.4-1.2 4.8 0"/><circle cx="12" cy="18.6" r="1.1" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><polygon points="19.37,10.58 21.23,10.22 21.23,13.78 19.37,13.42 18.21,16.21 19.78,17.27 17.27,19.78 16.21,18.21 13.42,19.37 13.78,21.23 10.22,21.23 10.58,19.37 7.79,18.21 6.73,19.78 4.22,17.27 5.79,16.21 4.63,13.42 2.77,13.78 2.77,10.22 4.63,10.58 5.79,7.79 4.22,6.73 6.73,4.22 7.79,5.79 10.58,4.63 10.22,2.77 13.78,2.77 13.42,4.63 16.21,5.79 17.27,4.22 19.78,6.73 18.21,7.79"/><circle cx="12" cy="12" r="3.1"/></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="8" r="4.5"/><path d="m11.2 11.2 9.3 9.3m-3-3 3-3m-6 0 3-3"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20.5 20.5-4.9-4.9"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 10a6 6 0 0 1 12 0c0 4 1.5 5.4 1.5 5.4h-15S6 14 6 10Z"/><path d="M10.3 19a2 2 0 0 0 3.4 0"/></symbol>
+    <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6.5 9.5 5.5 5.5 5.5-5.5"/></symbol>
+    <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9.5 6.5 5.5 5.5-5.5 5.5"/></symbol>
+    <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="M14.5 6.5 9 12l5.5 5.5"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="m8.5 12.3 2.4 2.4 4.6-5"/></symbol>
+    <symbol id="i-alert-triangle" viewBox="0 0 24 24"><path d="M10.4 4.4 3.6 16.4a1.9 1.9 0 0 0 1.6 2.8h13.6a1.9 1.9 0 0 0 1.6-2.8L13.6 4.4a1.9 1.9 0 0 0-3.2 0Z"/><path d="M12 9.5v4M12 16.8h.01"/></symbol>
+    <symbol id="i-alert-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 8v4.5M12 16h.01"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8h.01"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M9 6.5v11M15 6.5v11"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M8.5 5.8v12.4L18 12 8.5 5.8Z"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3L19.5 9"/><path d="M19.5 4.5V9H15"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M20 4 10.4 13.6M20 4l-6 16-3.6-6.4L4 10l16-6Z"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v10m0 0-4-4m4 4 4-4"/><path d="M4.5 16.5V18a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-1.5"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 14V4m0 0L8 8m4-4 4 4"/><path d="M4.5 16.5V18a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-1.5"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3.5 7A1.5 1.5 0 0 1 5 5.5h4l2 2.5h8A1.5 1.5 0 0 1 20.5 9.5V17A1.5 1.5 0 0 1 19 18.5H5A1.5 1.5 0 0 1 3.5 17V7Z"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M6 3.5h7L18.5 9v9.5a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-14a1 1 0 0 1 1-1Z"/><path d="M13 3.5V9h5.5"/></symbol>
+    <symbol id="i-file-zip" viewBox="0 0 24 24"><path d="M6 3.5h7L18.5 9v9.5a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-14a1 1 0 0 1 1-1Z"/><path d="M13 3.5V9h5.5M10 5.5h1.5M10 8h1.5M10 10.5h1.5M10 13h1.5v3H10z"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="1.8"/><circle cx="9" cy="9.5" r="1.6"/><path d="m3.5 16.5 4.5-4.5 3.5 3.5 3-3 6 6"/></symbol>
+    <symbol id="i-video" viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="12.5" height="13" rx="1.8"/><path d="m16 10.5 4.5-3v9l-4.5-3"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><path d="M9.5 14.5 14.5 9.5"/><path d="M8 12 5.6 14.4a3.8 3.8 0 0 0 5.4 5.4L13.4 17.4M16 12l2.4-2.4a3.8 3.8 0 0 0-5.4-5.4L10.6 6.6"/></symbol>
+    <symbol id="i-text" viewBox="0 0 24 24"><path d="M4.5 6.5h15M4.5 10.5h11M4.5 14.5h15M4.5 18.5h8"/></symbol>
+    <symbol id="i-clipboard" viewBox="0 0 24 24"><rect x="5.5" y="4.5" width="13" height="16" rx="1.8"/><path d="M9 4.5a3 3 0 0 1 6 0"/><path d="M9 11h6M9 14.5h4"/></symbol>
+    <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="11.5" rx="1.8"/><path d="M9.5 20h5M12 16v4"/></symbol>
+    <symbol id="i-laptop" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="9.5" rx="1.5"/><path d="M3 18h18l-1.4-2.2H4.4L3 18Z"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><rect x="7.5" y="3" width="9" height="18" rx="2"/><path d="M10.8 17.8h2.4"/></symbol>
+    <symbol id="i-browser" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M6 6.5h.01M9 6.5h.01M12 6.5h.01"/></symbol>
+    <symbol id="i-tablet" viewBox="0 0 24 24"><rect x="4.5" y="3.5" width="15" height="17" rx="2"/><path d="M10.5 17.6h3"/></symbol>
+    <symbol id="i-pi" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="1.6"/><path d="M10 7V4M14 7V4M10 20v-3M14 20v-3M7 10H4M7 14H4M20 10h-3M20 14h-3"/><circle cx="12" cy="12" r="1.4"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3.5 5 6v6c0 4.4 3 7.4 7 8.5 4-1.1 7-4.1 7-8.5V6l-7-2.5Z"/></symbol>
+    <symbol id="i-shield-check" viewBox="0 0 24 24"><path d="M12 3.5 5 6v6c0 4.4 3 7.4 7 8.5 4-1.1 7-4.1 7-8.5V6l-7-2.5Z"/><path d="m9 11.8 2.2 2.2 3.8-4"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5.5" y="10.5" width="13" height="9" rx="1.8"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></symbol>
+    <symbol id="i-more-v" viewBox="0 0 24 24"><circle cx="12" cy="5.5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="18.5" r="1" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-more-h" viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="18.5" cy="12" r="1" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24"><path d="M9 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-3"/><path d="M14 4h6v6M20 4l-8.5 8.5"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4.5 6.5h15M9.5 6.5v-1a1.5 1.5 0 0 1 1.5-1.5h2a1.5 1.5 0 0 1 1.5 1.5v1"/><path d="M6.5 6.5 7.4 19a1.5 1.5 0 0 0 1.5 1.4h6.2a1.5 1.5 0 0 0 1.5-1.4l.9-12.5"/><path d="M10 10.5v6M14 10.5v6"/></symbol>
+    <symbol id="i-pencil" viewBox="0 0 24 24"><path d="m14.5 5.5 4 4L8 20l-4.5.5L4 16 14.5 5.5Z"/><path d="m12.5 7.5 4 4"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M3 12s3.2-6 9-6 9 6 9 6-3.2 6-9 6-9-6-9-6Z"/><circle cx="12" cy="12" r="2.6"/></symbol>
+    <symbol id="i-unplug" viewBox="0 0 24 24"><path d="m8.5 15.5-4 4M9.5 6.5l3 3m2.5 2.5 3 3"/><path d="M9.5 6.5 6 3M17.5 9.5 21 6"/><path d="M6.5 9.5 3.5 12.5l8 8 3-3-8-8ZM15.5 18.5l-3-3"/></symbol>
+    <symbol id="i-grip" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="6" r="1" fill="currentColor" stroke="none"/><circle cx="9" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="9" cy="18" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="18" r="1" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-filter" viewBox="0 0 24 24"><path d="M4.5 6.5h15l-5.8 6.8v5.2l-3.4-1.7v-3.5L4.5 6.5Z"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4.5" y="5.5" width="15" height="14" rx="1.8"/><path d="M4.5 9.5h15M8.5 3.5v3M15.5 3.5v3"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.5"/><path d="M5.5 19.5c.8-3.2 3.3-5 6.5-5s5.7 1.8 6.5 5"/></symbol>
+    <symbol id="i-zap" viewBox="0 0 24 24"><path d="M13 3 5.5 13.5H11L10 21l7.5-10.5H12L13 3Z"/></symbol>
+    <symbol id="i-qr" viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2.5v2.5H14zM17.5 17.5H20V20h-2.5z"/></symbol>
+    <symbol id="i-keyboard" viewBox="0 0 24 24"><rect x="3.5" y="6.5" width="17" height="11" rx="1.8"/><path d="M7 10h.01M10 10h.01M13 10h.01M16 10h.01M7 13.5h.01M9.5 13.5h5M17 13.5h.01"/></symbol>
+    <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3.5a8.5 8.5 0 1 0 0 17c1.3 0 2-.8 2-1.8 0-.9-.7-1.4-.7-2.2 0-1 .8-1.8 2-1.8h1.8c2 0 3.4-1.5 3.4-3.5 0-4.3-3.8-7.7-8.5-7.7Z"/><circle cx="8" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="7.5" r="1" fill="currentColor" stroke="none"/><circle cx="16" cy="10" r="1" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-code" viewBox="0 0 24 24"><path d="m8.5 8-4.5 4 4.5 4M15.5 8l4.5 4-4.5 4M13 5.5l-2 13"/></symbol>
+    <symbol id="i-access" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><path d="M12 8v5l3.5 6M12 13l-3.5 6M8.5 9.5c2.3.8 4.7.8 7 0"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M5 7.5h9m3.5 0H19M5 16.5h3.5M12 16.5H19"/><circle cx="16" cy="7.5" r="2"/><circle cx="9.8" cy="16.5" r="2"/></symbol>
+    <symbol id="i-database" viewBox="0 0 24 24"><ellipse cx="12" cy="5.5" rx="7.5" ry="2.8"/><path d="M4.5 5.5v13c0 1.5 3.4 2.8 7.5 2.8s7.5-1.3 7.5-2.8v-13M4.5 12c0 1.5 3.4 2.8 7.5 2.8s7.5-1.3 7.5-2.8"/></symbol>
+    <symbol id="i-activity" viewBox="0 0 24 24"><path d="M3.5 12h3.6l2.4-6.5 4.6 13 2.4-6.5h4"/></symbol>
+    <symbol id="i-terminal" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="1.8"/><path d="m7 9 3 3-3 3M12.5 15h4.5"/></symbol>
+    <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="M12 19V5m0 0-5.5 5.5M12 5l5.5 5.5"/></symbol>
+    <symbol id="i-arrow-down" viewBox="0 0 24 24"><path d="M12 5v14m0 0 5.5-5.5M12 19l-5.5-5.5"/></symbol>
+    <symbol id="i-arrow-up-right" viewBox="0 0 24 24"><path d="M7 17 17 7m0 0H9m8 0v8"/></symbol>
+    <symbol id="i-arrow-down-left" viewBox="0 0 24 24"><path d="M17 7 7 17m0 0h8M7 17V9"/></symbol>
+    <symbol id="i-cloud-up" viewBox="0 0 24 24"><path d="M7 17.5a4.5 4.5 0 0 1-.4-9A5.5 5.5 0 0 1 17.3 9.7 3.9 3.9 0 0 1 17 17.5"/><path d="M12 20v-7.5m0 0-2.8 2.8M12 12.5l2.8 2.8"/></symbol>
+    <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M4.5 13.5 6.8 5.6A1.5 1.5 0 0 1 8.2 4.5h7.6a1.5 1.5 0 0 1 1.4 1.1l2.3 7.9"/><path d="M4.5 13.5V18A1.5 1.5 0 0 0 6 19.5h12a1.5 1.5 0 0 0 1.5-1.5v-4.5h-4.6a3 3 0 0 1-5.8 0H4.5Z"/></symbol>
+    <symbol id="i-message" viewBox="0 0 24 24"><path d="M4.5 6A1.5 1.5 0 0 1 6 4.5h12A1.5 1.5 0 0 1 19.5 6v9a1.5 1.5 0 0 1-1.5 1.5H9l-4.5 4V6Z"/><path d="M8.5 9h7M8.5 12h4.5"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="11" height="11" rx="1.8"/><path d="M5.5 14.5h-.7A1.3 1.3 0 0 1 3.5 13.2V5.8a1.3 1.3 0 0 1 1.3-1.3h7.4a1.3 1.3 0 0 1 1.3 1.3v.7"/></symbol>
+    <symbol id="i-forward" viewBox="0 0 24 24"><path d="M13 6.5 19.5 12 13 17.5v-3.4c-4.5-.4-7.5 1.2-9.5 4 .6-4.9 3.4-8 9.5-8.3V6.5Z"/></symbol>
+    <symbol id="i-power" viewBox="0 0 24 24"><path d="M12 3.5v7"/><path d="M7 6.2a8 8 0 1 0 10 0"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c-4.7 4.9-4.7 12.1 0 17M12 3.5c4.7 4.9 4.7 12.1 0 17"/></symbol>
+    <symbol id="i-minimize" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M5 5.5A2 2 0 0 1 7 3.5h11.5v15H7a2 2 0 0 0-2 2v-15Z"/><path d="M5 18.5a2 2 0 0 0 2 2h11.5"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.3"/><rect x="13" y="4" width="7" height="7" rx="1.3"/><rect x="4" y="13" width="7" height="7" rx="1.3"/><rect x="13" y="13" width="7" height="7" rx="1.3"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M8.5 6.5H20M8.5 12H20M8.5 17.5H20"/><circle cx="4.7" cy="6.5" r="1" fill="currentColor" stroke="none"/><circle cx="4.7" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="4.7" cy="17.5" r="1" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-rocket" viewBox="0 0 24 24"><path d="M13.5 15.5 8.5 10.5c1-3 3.2-5.6 6.5-6.9 1.4-.5 2.9-.6 4.4-.5.1 1.5 0 3-.5 4.4-1.3 3.3-3.9 5.5-6.9 6.5l1.5 1.5Z"/><path d="M9 14.5c-1.5.4-2.6 1.8-2.9 4.4 2.6-.3 4-1.4 4.4-2.9M15.5 8.5h.01"/></symbol>
+  </defs>
+</svg>
+
+<div class="app" id="app">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebarNav" aria-label="Application navigation">
+    <div class="brand">
+      <span class="brand-mark"><svg class="icon"><use href="#i-logo"/></svg></span>
+      <span class="brand-name">DropSync</span>
+      <span class="brand-ver">0.7.0</span>
+    </div>
+
+    <nav class="nav" aria-label="Main navigation">
+      <button class="nav-item is-active" data-nav="dashboard"><svg class="icon"><use href="#i-dashboard"/></svg><span>Dashboard</span></button>
+      <button class="nav-item" data-nav="nearby"><svg class="icon"><use href="#i-radar"/></svg><span>Nearby</span><em class="nav-count">7</em></button>
+      <button class="nav-item" data-nav="transfers"><svg class="icon"><use href="#i-swap"/></svg><span>Transfers</span><em class="nav-count accent">4</em></button>
+      <button class="nav-item" data-nav="history"><svg class="icon"><use href="#i-clock"/></svg><span>History</span></button>
+      <button class="nav-item" data-nav="shared"><svg class="icon"><use href="#i-box"/></svg><span>Shared</span><em class="nav-count">3</em></button>
+      <button class="nav-item" data-nav="favorites"><svg class="icon"><use href="#i-star"/></svg><span>Favorites</span></button>
+
+      <div class="nav-label">System</div>
+      <button class="nav-item" data-nav="contacts"><svg class="icon"><use href="#i-users"/></svg><span>Contacts</span></button>
+      <button class="nav-item" data-nav="storage"><svg class="icon"><use href="#i-hdd"/></svg><span>Storage</span></button>
+      <button class="nav-item" data-nav="network"><svg class="icon"><use href="#i-wifi"/></svg><span>Network</span></button>
+      <button class="nav-item" data-nav="settings-page"><svg class="icon"><use href="#i-gear"/></svg><span>Settings</span></button>
+    </nav>
+
+    <div class="sidebar-profile" id="profileBtn" role="button" tabindex="0" aria-haspopup="menu">
+      <span class="avatar">TP</span>
+      <span class="profile-meta">
+        <span class="profile-name">Taxperia-PC</span>
+        <span class="profile-status"><span class="dot success"></span>Online · Visible</span>
+      </span>
+      <svg class="icon icon-sm profile-chev"><use href="#i-chevron-down"/></svg>
+    </div>
+  </aside>
+
+  <button class="mobile-menu-backdrop" id="mobileMenuBackdrop" type="button" aria-label="Close navigation" tabindex="-1"></button>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn mobile-menu-toggle" id="mobileMenuBtn" type="button" aria-label="Open navigation" aria-controls="sidebarNav" aria-expanded="false">
+        <svg class="icon"><use href="#i-list"/></svg>
+      </button>
+      <div class="topbar-title">
+        <h1 id="pageTitle">Dashboard</h1>
+        <p id="pageSubtitle" class="page-subtitle">This device is visible on your local network</p>
+      </div>
+      <div class="topbar-search" role="search">
+        <svg class="icon icon-sm"><use href="#i-search"/></svg>
+        <input id="globalSearchInput" type="text" placeholder="Search files, devices, transfers…" aria-label="Global search" readonly>
+        <span class="kbd">Ctrl K</span>
+      </div>
+      <div class="topbar-actions">
+        <button class="chip net-chip" id="netChip" title="Network status"><span class="dot success"></span><svg class="icon icon-sm"><use href="#i-wifi"/></svg>Local network</button>
+        <button class="icon-btn mobile-search-btn" type="button" data-open-modal="search" aria-label="Search" title="Search"><svg class="icon"><use href="#i-search"/></svg></button>
+        <button class="icon-btn has-badge" id="bellBtn" aria-label="Notifications" title="Notifications">
+          <svg class="icon"><use href="#i-bell"/></svg><em class="badge-dot" id="bellBadge">3</em>
+        </button>
+        <button class="btn btn-primary btn-sm" data-open-modal="send"><svg class="icon icon-sm"><use href="#i-send"/></svg>Send Files</button>
+      </div>
+    </header>
+
+    <main class="content" id="content">
+
+      <!-- ================= DASHBOARD ================= -->
+      <section class="page is-active" data-page="dashboard">
+        <div class="section-head">
+          <div>
+            <h3 class="section-title">Nearby Devices</h3>
+            <p class="section-sub" id="nearbySubtitle">Scanning your local network for DropSync devices</p>
+          </div>
+          <div class="section-actions">
+            <button class="btn btn-ghost btn-sm" data-nav-to="nearby">View all</button>
+            <button class="icon-btn" id="dashRefresh" aria-label="Refresh discovery" title="Refresh discovery"><svg class="icon"><use href="#i-refresh"/></svg></button>
+          </div>
+        </div>
+
+        <div class="device-strip" id="dashDevices">
+          <button class="device-chip is-this" data-drawer="taxperia-pc">
+            <span class="device-ic"><svg class="icon"><use href="#i-monitor"/></svg></span>
+            <span class="device-chip-body"><span class="device-chip-name">Taxperia-PC</span><span class="device-chip-meta"><span class="dot success"></span>This device</span></span>
+          </button>
+          <button class="device-chip" data-drawer="galaxy-phone">
+            <span class="device-ic"><svg class="icon"><use href="#i-phone"/></svg></span>
+            <span class="device-chip-body"><span class="device-chip-name">Galaxy Phone</span><span class="device-chip-meta"><span class="dot success"></span>Nearby</span></span>
+            <span class="qbars" aria-label="Excellent connection"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span>
+          </button>
+          <button class="device-chip" data-drawer="macbook">
+            <span class="device-ic"><svg class="icon"><use href="#i-laptop"/></svg></span>
+            <span class="device-chip-body"><span class="device-chip-name">MacBook</span><span class="device-chip-meta"><span class="dot success"></span>Nearby</span></span>
+            <span class="qbars" aria-label="Good connection"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span>
+          </button>
+          <button class="device-chip" data-drawer="raspberry-pi">
+            <span class="device-ic"><svg class="icon"><use href="#i-pi"/></svg></span>
+            <span class="device-chip-body"><span class="device-chip-name">Raspberry Pi</span><span class="device-chip-meta"><span class="dot success"></span>Nearby</span></span>
+            <span class="qbars" aria-label="Excellent connection"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span>
+          </button>
+          <button class="device-chip" data-drawer="iphone-15">
+            <span class="device-ic"><svg class="icon"><use href="#i-phone"/></svg></span>
+            <span class="device-chip-body"><span class="device-chip-name">iPhone 15</span><span class="device-chip-meta"><span class="dot success"></span>Nearby</span></span>
+            <span class="qbars" aria-label="Good connection"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span>
+          </button>
+          <button class="device-chip is-offline" data-drawer="office-laptop">
+            <span class="device-ic"><svg class="icon"><use href="#i-laptop"/></svg></span>
+            <span class="device-chip-body"><span class="device-chip-name">Office Laptop</span><span class="device-chip-meta"><span class="dot muted"></span>Offline · 1 d ago</span></span>
+          </button>
+          <button class="device-chip is-new" id="newDeviceChip" data-open-modal="trust">
+            <span class="device-ic"><svg class="icon"><use href="#i-tablet"/></svg></span>
+            <span class="device-chip-body"><span class="device-chip-name">Galaxy Tab</span><span class="device-chip-meta"><span class="dot accent"></span>New device</span></span>
+            <span class="badge badge-accent">Review</span>
+          </button>
+        </div>
+
+        <div class="dash-grid">
+          <div class="dash-main">
+            <div class="card">
+              <div class="card-head">
+                <h4 class="card-title">Active Transfers</h4>
+                <div class="card-head-actions">
+                  <span class="badge badge-neutral"><span class="dot accent"></span>4 active · 2 queued</span>
+                  <button class="btn btn-ghost btn-sm" data-nav-to="transfers">Open Transfers</button>
+                </div>
+              </div>
+
+              <article class="transfer-row" data-transfer data-speed-rate="0.35">
+                <span class="file-badge tone-sand"><svg class="icon"><use href="#i-file-zip"/></svg></span>
+                <div class="transfer-main">
+                  <div class="transfer-top">
+                    <span class="transfer-name">Project_Backup.zip</span>
+                    <span class="transfer-dir">Sending to <strong>Galaxy Phone</strong></span>
+                    <span class="transfer-pct" data-pct>72%</span>
+                  </div>
+                  <div class="progress"><div class="progress-fill" style="width:72%"></div></div>
+                  <div class="transfer-meta">
+                    <span data-done>1.73 GB</span> of 2.4 GB
+                    <i class="sep"></i><span data-speed>94 MB/s</span>
+                    <i class="sep"></i><span data-eta>12 s remaining</span>
+                    <i class="sep"></i><span class="encrypted"><svg class="icon icon-xs"><use href="#i-lock"/></svg>Encrypted</span>
+                  </div>
+                </div>
+                <div class="transfer-actions">
+                  <button class="icon-btn" data-act="pause" aria-label="Pause" title="Pause"><svg class="icon icon-sm"><use href="#i-pause"/></svg></button>
+                  <button class="icon-btn" data-act="cancel" aria-label="Cancel" title="Cancel"><svg class="icon icon-sm"><use href="#i-x"/></svg></button>
+                </div>
+              </article>
+
+              <article class="transfer-row" data-transfer data-speed-rate="0.22">
+                <span class="file-badge tone-sand"><svg class="icon"><use href="#i-file-zip"/></svg></span>
+                <div class="transfer-main">
+                  <div class="transfer-top">
+                    <span class="transfer-name">design-assets.zip</span>
+                    <span class="transfer-dir">Receiving from <strong>MacBook</strong></span>
+                    <span class="transfer-pct" data-pct>48%</span>
+                  </div>
+                  <div class="progress"><div class="progress-fill" style="width:48%"></div></div>
+                  <div class="transfer-meta">
+                    <span data-done>1.34 GB</span> of 2.8 GB
+                    <i class="sep"></i><span data-speed>61 MB/s</span>
+                    <i class="sep"></i><span data-eta>38 s remaining</span>
+                    <i class="sep"></i><span class="encrypted"><svg class="icon icon-xs"><use href="#i-lock"/></svg>Encrypted</span>
+                  </div>
+                </div>
+                <div class="transfer-actions">
+                  <button class="icon-btn" data-act="pause" aria-label="Pause" title="Pause"><svg class="icon icon-sm"><use href="#i-pause"/></svg></button>
+                  <button class="icon-btn" data-act="cancel" aria-label="Cancel" title="Cancel"><svg class="icon icon-sm"><use href="#i-x"/></svg></button>
+                </div>
+              </article>
+            </div>
+
+            <div class="card">
+              <div class="card-head">
+                <h4 class="card-title">Recent Activity</h4>
+                <button class="btn btn-ghost btn-sm" data-nav-to="history">View history</button>
+              </div>
+              <ul class="activity-list">
+                <li>
+                  <span class="activity-ic sent"><svg class="icon icon-sm"><use href="#i-arrow-up-right"/></svg></span>
+                  <div class="activity-body"><p><strong>Sent</strong> design-assets.zip <span class="muted">to Galaxy Phone</span></p><span class="activity-when">Today · 18:42</span></div>
+                  <span class="badge badge-success">Completed</span>
+                </li>
+                <li>
+                  <span class="activity-ic recv"><svg class="icon icon-sm"><use href="#i-arrow-down-left"/></svg></span>
+                  <div class="activity-body"><p><strong>Received</strong> photos.zip <span class="muted">from MacBook</span></p><span class="activity-when">Yesterday · 21:18</span></div>
+                  <span class="badge badge-success">Completed</span>
+                </li>
+                <li>
+                  <span class="activity-ic neutral"><svg class="icon icon-sm"><use href="#i-check-circle"/></svg></span>
+                  <div class="activity-body"><p><strong>Connected</strong> with Raspberry Pi <span class="muted">· paired device</span></p><span class="activity-when">Today · 09:12</span></div>
+                  <span class="badge badge-neutral">Connection</span>
+                </li>
+                <li>
+                  <span class="activity-ic error"><svg class="icon icon-sm"><use href="#i-alert-circle"/></svg></span>
+                  <div class="activity-body"><p><strong>Transfer failed</strong> <span class="muted">movie.mkv · connection interrupted</span></p><span class="activity-when">Today · 13:47</span></div>
+                  <span class="badge badge-error">Failed</span>
+                </li>
+                <li>
+                  <span class="activity-ic warn"><svg class="icon icon-sm"><use href="#i-alert-triangle"/></svg></span>
+                  <div class="activity-body"><p><strong>Storage notice</strong> <span class="muted">transfer cache is above 8 GB</span></p><span class="activity-when">Today · 08:30</span></div>
+                  <span class="badge badge-warning">Warning</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="dash-side">
+            <div class="card">
+              <div class="card-head"><h4 class="card-title">Quick Actions</h4></div>
+              <div class="qa-grid">
+                <button class="qa-tile" data-open-modal="send"><svg class="icon"><use href="#i-send"/></svg><span>Send Files</span></button>
+                <button class="qa-tile" data-open-modal="incoming"><svg class="icon"><use href="#i-inbox"/></svg><span>Receive Files</span></button>
+                <button class="qa-tile" data-open-modal="send" data-mode="text"><svg class="icon"><use href="#i-message"/></svg><span>Send Text</span></button>
+                <button class="qa-tile" data-open-modal="send" data-mode="link"><svg class="icon"><use href="#i-link"/></svg><span>Send Link</span></button>
+                <button class="qa-tile" data-open-modal="clipboard"><svg class="icon"><use href="#i-clipboard"/></svg><span>Share Clipboard</span></button>
+                <button class="qa-tile" data-open-modal="pairing"><svg class="icon"><use href="#i-qr"/></svg><span>Pair Device</span></button>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-head">
+                <h4 class="card-title">Storage</h4>
+                <button class="btn btn-ghost btn-sm" data-nav-to="storage">Manage</button>
+              </div>
+              <div class="storage-mini">
+                <div class="donut-wrap">
+                  <svg class="donut" viewBox="0 0 120 120" role="img" aria-label="148 of 256 GB used">
+                    <circle class="donut-track" cx="60" cy="60" r="50"/>
+                    <circle class="donut-fill" cx="60" cy="60" r="50"/>
+                    <text x="60" y="56" class="donut-num">148</text>
+                    <text x="60" y="72" class="donut-cap">GB used</text>
+                  </svg>
+                </div>
+                <ul class="legend">
+                  <li><i style="--c:#6AA3D8"></i>Applications<b>42 GB</b></li>
+                  <li><i style="--c:#53B89E"></i>Files<b>61 GB</b></li>
+                  <li><i style="--c:#C7A25C"></i>Transfers<b>24 GB</b></li>
+                  <li><i style="--c:#A08BD0"></i>Cache<b>8 GB</b></li>
+                  <li><i style="--c:#6E7681"></i>Other<b>13 GB</b></li>
+                </ul>
+              </div>
+              <p class="mini-note">256 GB drive · 108 GB free</p>
+            </div>
+
+            <div class="card">
+              <div class="card-head">
+                <h4 class="card-title">Network Status</h4>
+                <button class="btn btn-ghost btn-sm" data-nav-to="network">Details</button>
+              </div>
+              <div class="net-mini">
+                <span class="net-ic"><svg class="icon"><use href="#i-wifi"/></svg></span>
+                <div class="net-mini-body">
+                  <p class="net-name">Home Wi-Fi <span class="badge badge-success"><span class="dot success"></span>Connected</span></p>
+                  <p class="net-meta">Excellent signal · 866 Mbps link</p>
+                </div>
+              </div>
+              <dl class="spec-list">
+                <div><dt>Local IP</dt><dd class="mono">192.168.1.25</dd></div>
+                <div><dt>Latency</dt><dd>2 ms</dd></div>
+                <div><dt>Est. speed</dt><dd>94 MB/s</dd></div>
+                <div><dt>Discovery</dt><dd><span class="dot accent"></span>Active</dd></div>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= NEARBY ================= -->
+      <section class="page" data-page="nearby">
+        <div class="toolbar">
+          <div class="search-field">
+            <svg class="icon icon-sm"><use href="#i-search"/></svg>
+            <input type="text" id="deviceSearch" placeholder="Search devices…" aria-label="Search devices">
+          </div>
+          <div class="seg" role="tablist" aria-label="Status filter">
+            <button class="seg-btn is-active" data-seg="all">All</button>
+            <button class="seg-btn" data-seg="online">Online</button>
+            <button class="seg-btn" data-seg="offline">Offline</button>
+          </div>
+          <button class="chip" id="typeFilter" aria-haspopup="menu"><svg class="icon icon-sm"><use href="#i-filter"/></svg>Device type<svg class="icon icon-xs"><use href="#i-chevron-down"/></svg></button>
+          <button class="chip" id="favFilter"><svg class="icon icon-sm"><use href="#i-star"/></svg>Favorites only</button>
+          <span class="toolbar-spacer"></span>
+          <span class="toolbar-note" id="discoverNote"><span class="dot accent"></span>Discovering · signed local announcements</span>
+          <button class="btn btn-secondary btn-sm" id="refreshDiscovery"><svg class="icon icon-sm"><use href="#i-refresh"/></svg>Refresh</button>
+        </div>
+
+        <div class="device-grid" id="deviceGrid">
+
+          <article class="device-card is-online is-fav" data-device="galaxy-phone" data-name="Galaxy Phone" data-type="Android · Amara" data-icon="i-phone" data-status="online" data-quality="Excellent" data-q="4" data-speed="42 MB/s" data-last="Seen just now" data-trust="Trusted device" data-ip="192.168.1.34" data-total="18.6 GB" data-lastxfer="photos.zip · Today 15:02">
+            <header class="device-card-head">
+              <span class="device-ic lg"><svg class="icon"><use href="#i-phone"/></svg></span>
+              <div class="device-card-title">
+                <h3>Galaxy Phone</h3>
+                <p>Android · Amara</p>
+              </div>
+              <button class="icon-btn fav is-on" data-act="fav" aria-label="Remove from favorites" title="Favorite"><svg class="icon icon-sm"><use href="#i-star"/></svg></button>
+            </header>
+            <div class="device-card-badges">
+              <span class="badge badge-accent-soft"><svg class="icon icon-xs"><use href="#i-shield-check"/></svg>Trusted</span>
+              <span class="badge badge-neutral"><span class="dot success"></span>Online</span>
+            </div>
+            <div class="device-card-info">
+              <div class="device-card-row"><span>Connection</span><span class="quality"><span class="qbars"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span>Excellent</span></div>
+              <div class="device-card-row"><span>Est. speed</span><span>42 MB/s</span></div>
+              <div class="device-card-row"><span>Last seen</span><span>Just now</span></div>
+            </div>
+            <footer class="device-card-foot">
+              <button class="btn btn-primary btn-sm" data-act="send">Send</button>
+              <button class="btn btn-secondary btn-sm" data-act="connect">Connect</button>
+              <button class="icon-btn" data-act="menu" aria-label="More actions" title="More"><svg class="icon icon-sm"><use href="#i-more-h"/></svg></button>
+            </footer>
+          </article>
+
+          <article class="device-card is-online" data-device="macbook" data-name="MacBook" data-type="macOS · Work" data-icon="i-laptop" data-status="online" data-quality="Good" data-q="3" data-speed="28 MB/s" data-last="Seen 5 min ago" data-trust="Trusted device" data-ip="192.168.1.41" data-total="9.2 GB" data-lastxfer="design-assets.zip · Today 16:20">
+            <header class="device-card-head">
+              <span class="device-ic lg"><svg class="icon"><use href="#i-laptop"/></svg></span>
+              <div class="device-card-title"><h3>MacBook</h3><p>macOS · Work</p></div>
+              <button class="icon-btn fav" data-act="fav" aria-label="Add to favorites" title="Favorite"><svg class="icon icon-sm"><use href="#i-star"/></svg></button>
+            </header>
+            <div class="device-card-badges">
+              <span class="badge badge-accent-soft"><svg class="icon icon-xs"><use href="#i-shield-check"/></svg>Trusted</span>
+              <span class="badge badge-neutral"><span class="dot success"></span>Online</span>
+            </div>
+            <div class="device-card-info">
+              <div class="device-card-row"><span>Connection</span><span class="quality"><span class="qbars"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span>Good</span></div>
+              <div class="device-card-row"><span>Est. speed</span><span>28 MB/s</span></div>
+              <div class="device-card-row"><span>Last seen</span><span>5 min ago</span></div>
+            </div>
+            <footer class="device-card-foot">
+              <button class="btn btn-primary btn-sm" data-act="send">Send</button>
+              <button class="btn btn-secondary btn-sm" data-act="connect">Connect</button>
+              <button class="icon-btn" data-act="menu" aria-label="More actions" title="More"><svg class="icon icon-sm"><use href="#i-more-h"/></svg></button>
+            </footer>
+          </article>
+
+          <article class="device-card is-online is-fav" data-device="raspberry-pi" data-name="Raspberry Pi" data-type="Linux · Home server" data-icon="i-pi" data-status="online" data-quality="Excellent" data-q="4" data-speed="11 MB/s" data-last="Seen 2 min ago" data-trust="Trusted device" data-ip="192.168.1.60" data-total="31.4 GB" data-lastxfer="backup-2026.zip · Today 04:00">
+            <header class="device-card-head">
+              <span class="device-ic lg"><svg class="icon"><use href="#i-pi"/></svg></span>
+              <div class="device-card-title"><h3>Raspberry Pi</h3><p>Linux · Home server</p></div>
+              <button class="icon-btn fav is-on" data-act="fav" aria-label="Remove from favorites" title="Favorite"><svg class="icon icon-sm"><use href="#i-star"/></svg></button>
+            </header>
+            <div class="device-card-badges">
+              <span class="badge badge-accent-soft"><svg class="icon icon-xs"><use href="#i-shield-check"/></svg>Trusted</span>
+              <span class="badge badge-neutral"><span class="dot success"></span>Online</span>
+            </div>
+            <div class="device-card-info">
+              <div class="device-card-row"><span>Connection</span><span class="quality"><span class="qbars"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span>Excellent</span></div>
+              <div class="device-card-row"><span>Est. speed</span><span>11 MB/s (Wi-Fi)</span></div>
+              <div class="device-card-row"><span>Last seen</span><span>2 min ago</span></div>
+            </div>
+            <footer class="device-card-foot">
+              <button class="btn btn-primary btn-sm" data-act="send">Send</button>
+              <button class="btn btn-secondary btn-sm" data-act="connect">Connect</button>
+              <button class="icon-btn" data-act="menu" aria-label="More actions" title="More"><svg class="icon icon-sm"><use href="#i-more-h"/></svg></button>
+            </footer>
+          </article>
+
+          <article class="device-card is-online is-this" data-device="taxperia-pc" data-name="Taxperia-PC" data-type="Windows 11 · This device" data-icon="i-monitor" data-status="online" data-quality="—" data-q="0" data-speed="—" data-last="Now" data-trust="This device" data-ip="192.168.1.25" data-total="—" data-lastxfer="—">
+            <header class="device-card-head">
+              <span class="device-ic lg"><svg class="icon"><use href="#i-monitor"/></svg></span>
+              <div class="device-card-title"><h3>Taxperia-PC</h3><p>Windows 11 · This device</p></div>
+              <button class="icon-btn fav" aria-hidden="true" tabindex="-1"><svg class="icon icon-sm"><use href="#i-star"/></svg></button>
+            </header>
+            <div class="device-card-badges">
+              <span class="badge badge-neutral">This device</span>
+              <span class="badge badge-neutral"><span class="dot success"></span>Online</span>
+            </div>
+            <div class="device-card-info">
+              <div class="device-card-row"><span>Visibility</span><span>Visible as “Taxperia”</span></div>
+              <div class="device-card-row"><span>Local IP</span><span class="mono">192.168.1.25</span></div>
+              <div class="device-card-row"><span>Incoming</span><span>Allowed from trusted</span></div>
+            </div>
+            <footer class="device-card-foot">
+              <button class="btn btn-secondary btn-sm" data-open-modal="pairing">Pair Device</button>
+              <button class="icon-btn" data-act="menu" aria-label="More actions" title="More"><svg class="icon icon-sm"><use href="#i-more-h"/></svg></button>
+            </footer>
+          </article>
+
+          <article class="device-card is-online" data-device="iphone-15" data-name="iPhone 15" data-type="iPhone · Personal" data-icon="i-phone" data-status="online" data-quality="Good" data-q="3" data-speed="24 MB/s" data-last="Seen 12 min ago" data-trust="Not trusted" data-ip="192.168.1.52" data-total="2.1 GB" data-lastxfer="IMG_2841.HEIC · Tue 20:11">
+            <header class="device-card-head">
+              <span class="device-ic lg"><svg class="icon"><use href="#i-phone"/></svg></span>
+              <div class="device-card-title"><h3>iPhone 15</h3><p>iPhone · Personal</p></div>
+              <button class="icon-btn fav" data-act="fav" aria-label="Add to favorites" title="Favorite"><svg class="icon icon-sm"><use href="#i-star"/></svg></button>
+            </header>
+            <div class="device-card-badges">
+              <span class="badge badge-neutral"><svg class="icon icon-xs"><use href="#i-shield"/></svg>Not trusted</span>
+              <span class="badge badge-neutral"><span class="dot success"></span>Online</span>
+            </div>
+            <div class="device-card-info">
+              <div class="device-card-row"><span>Connection</span><span class="quality"><span class="qbars"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span>Good</span></div>
+              <div class="device-card-row"><span>Est. speed</span><span>24 MB/s</span></div>
+              <div class="device-card-row"><span>Last seen</span><span>12 min ago</span></div>
+            </div>
+            <footer class="device-card-foot">
+              <button class="btn btn-primary btn-sm" data-act="send">Send</button>
+              <button class="btn btn-secondary btn-sm" data-act="connect">Connect</button>
+              <button class="icon-btn" data-act="menu" aria-label="More actions" title="More"><svg class="icon icon-sm"><use href="#i-more-h"/></svg></button>
+            </footer>
+          </article>
+
+          <article class="device-card is-pending" data-device="galaxy-tab" data-name="Galaxy Tab" data-type="Android · Unknown" data-icon="i-tablet" data-status="online" data-quality="Good" data-q="3" data-speed="18 MB/s" data-last="Detected 2 min ago" data-trust="Pending approval" data-ip="192.168.1.73" data-total="—" data-lastxfer="—">
+            <header class="device-card-head">
+              <span class="device-ic lg new"><svg class="icon"><use href="#i-tablet"/></svg></span>
+              <div class="device-card-title"><h3>Galaxy Tab <span class="badge badge-accent">New</span></h3><p>Android · Unknown identity</p></div>
+              <button class="icon-btn fav" data-act="fav" aria-label="Add to favorites" title="Favorite"><svg class="icon icon-sm"><use href="#i-star"/></svg></button>
+            </header>
+            <div class="device-card-badges">
+              <span class="badge badge-warning"><svg class="icon icon-xs"><use href="#i-alert-triangle"/></svg>Pending approval</span>
+            </div>
+            <div class="device-card-info">
+              <div class="device-card-row"><span>Request</span><span>Wants to send files</span></div>
+              <div class="device-card-row"><span>Detected</span><span>2 min ago · Home Wi-Fi</span></div>
+              <div class="device-card-row"><span>Local address</span><span class="mono">192.168.1.73</span></div>
+            </div>
+            <footer class="device-card-foot">
+              <button class="btn btn-primary btn-sm" data-open-modal="trust">Review</button>
+              <button class="btn btn-ghost btn-sm" data-act="dismiss">Dismiss</button>
+              <button class="icon-btn" data-act="menu" aria-label="More actions" title="More"><svg class="icon icon-sm"><use href="#i-more-h"/></svg></button>
+            </footer>
+          </article>
+
+          <article class="device-card is-offline" data-device="living-room-tablet" data-name="Living Room Tablet" data-type="iPad · Shared" data-icon="i-tablet" data-status="offline" data-quality="—" data-q="0" data-speed="—" data-last="Seen 3 h ago" data-trust="Trusted device" data-ip="192.168.1.44" data-total="4.8 GB" data-lastxfer="sketch-notes.pdf · Mon 19:03">
+            <header class="device-card-head">
+              <span class="device-ic lg"><svg class="icon"><use href="#i-tablet"/></svg></span>
+              <div class="device-card-title"><h3>Living Room Tablet</h3><p>iPad · Shared</p></div>
+              <button class="icon-btn fav" data-act="fav" aria-label="Add to favorites" title="Favorite"><svg class="icon icon-sm"><use href="#i-star"/></svg></button>
+            </header>
+            <div class="device-card-badges">
+              <span class="badge badge-accent-soft"><svg class="icon icon-xs"><use href="#i-shield-check"/></svg>Trusted</span>
+              <span class="badge badge-neutral"><span class="dot muted"></span>Offline</span>
+            </div>
+            <div class="device-card-info">
+              <div class="device-card-row"><span>Connection</span><span class="muted">Unavailable</span></div>
+              <div class="device-card-row"><span>Est. speed</span><span class="muted">—</span></div>
+              <div class="device-card-row"><span>Last seen</span><span>3 h ago</span></div>
+            </div>
+            <footer class="device-card-foot">
+              <button class="btn btn-primary btn-sm" disabled title="Device is offline">Send</button>
+              <button class="btn btn-secondary btn-sm" disabled title="Device is offline">Connect</button>
+              <button class="icon-btn" data-act="menu" aria-label="More actions" title="More"><svg class="icon icon-sm"><use href="#i-more-h"/></svg></button>
+            </footer>
+          </article>
+
+          <article class="device-card is-offline" data-device="office-laptop" data-name="Office Laptop" data-type="Windows 10 · Work" data-icon="i-laptop" data-status="offline" data-quality="—" data-q="0" data-speed="—" data-last="Seen yesterday" data-trust="Trusted device" data-ip="192.168.1.38" data-total="12.3 GB" data-lastxfer="Q3_Report.pdf · Wed 11:26">
+            <header class="device-card-head">
+              <span class="device-ic lg"><svg class="icon"><use href="#i-laptop"/></svg></span>
+              <div class="device-card-title"><h3>Office Laptop</h3><p>Windows 10 · Work</p></div>
+              <button class="icon-btn fav" data-act="fav" aria-label="Add to favorites" title="Favorite"><svg class="icon icon-sm"><use href="#i-star"/></svg></button>
+            </header>
+            <div class="device-card-badges">
+              <span class="badge badge-accent-soft"><svg class="icon icon-xs"><use href="#i-shield-check"/></svg>Trusted</span>
+              <span class="badge badge-neutral"><span class="dot muted"></span>Offline</span>
+            </div>
+            <div class="device-card-info">
+              <div class="device-card-row"><span>Connection</span><span class="muted">Unavailable</span></div>
+              <div class="device-card-row"><span>Est. speed</span><span class="muted">—</span></div>
+              <div class="device-card-row"><span>Last seen</span><span>Yesterday, 18:05</span></div>
+            </div>
+            <footer class="device-card-foot">
+              <button class="btn btn-primary btn-sm" disabled title="Device is offline">Send</button>
+              <button class="btn btn-secondary btn-sm" disabled title="Device is offline">Connect</button>
+              <button class="icon-btn" data-act="menu" aria-label="More actions" title="More"><svg class="icon icon-sm"><use href="#i-more-h"/></svg></button>
+            </footer>
+          </article>
+        </div>
+
+        <div class="empty-state" id="deviceEmpty" hidden>
+          <span class="empty-ic"><svg class="icon"><use href="#i-radar"/></svg></span>
+          <h4>No nearby devices</h4>
+          <p>Make sure your other device is connected to the same network and has DropSync running.</p>
+          <button class="btn btn-secondary btn-sm" id="emptyRefresh"><svg class="icon icon-sm"><use href="#i-refresh"/></svg>Try again</button>
+        </div>
+      </section>
+
+      <!-- ================= TRANSFERS ================= -->
+      <section class="page" data-page="transfers">
+        <div class="tabs" role="tablist" aria-label="Transfer filter">
+          <button class="tab is-active" id="transfer-tab-active" data-tab="active" role="tab" aria-selected="true" aria-controls="transfer-panel-active" tabindex="0">Active <em>4</em></button>
+          <button class="tab" id="transfer-tab-queued" data-tab="queued" role="tab" aria-selected="false" aria-controls="transfer-panel-queued" tabindex="-1">Queued <em>2</em></button>
+          <button class="tab" id="transfer-tab-completed" data-tab="completed" role="tab" aria-selected="false" aria-controls="transfer-panel-completed" tabindex="-1">Completed <em>8</em></button>
+          <button class="tab" id="transfer-tab-failed" data-tab="failed" role="tab" aria-selected="false" aria-controls="transfer-panel-failed" tabindex="-1">Failed <em>1</em></button>
+          <button class="tab" id="transfer-tab-cancelled" data-tab="cancelled" role="tab" aria-selected="false" aria-controls="transfer-panel-cancelled" tabindex="-1">Cancelled <em>0</em></button>
+          <span class="toolbar-spacer"></span>
+          <button class="btn btn-ghost btn-sm" id="pauseAll"><svg class="icon icon-sm"><use href="#i-pause"/></svg>Pause all</button>
+          <button class="btn btn-ghost btn-sm" id="clearCompleted"><svg class="icon icon-sm"><use href="#i-trash"/></svg>Clear completed</button>
+        </div>
+
+        <div class="tab-panel is-active" id="transfer-panel-active" data-panel="active" role="tabpanel" aria-labelledby="transfer-tab-active" aria-hidden="false">
+          <div class="card list-card">
+            <article class="transfer-row lg" data-transfer data-speed-rate="0.4">
+              <span class="file-badge tone-sand"><svg class="icon"><use href="#i-file-zip"/></svg></span>
+              <div class="transfer-main">
+                <div class="transfer-top">
+                  <span class="transfer-name">Project_Backup.zip</span>
+                  <span class="transfer-dir">Sending to <strong>Galaxy Phone</strong></span>
+                  <span class="transfer-pct" data-pct>72%</span>
+                </div>
+                <div class="progress lg"><div class="progress-fill" style="width:72%"></div></div>
+                <div class="transfer-meta">
+                  <span data-done>1.73 GB</span> of 2.4 GB
+                  <i class="sep"></i><span data-speed>94 MB/s</span>
+                  <i class="sep"></i><span data-eta>12 s remaining</span>
+                  <i class="sep"></i><span class="encrypted"><svg class="icon icon-xs"><use href="#i-lock"/></svg>Encrypted transfer</span>
+                </div>
+              </div>
+              <div class="transfer-actions">
+                <button class="icon-btn" data-act="pause" aria-label="Pause" title="Pause"><svg class="icon icon-sm"><use href="#i-pause"/></svg></button>
+                <button class="icon-btn" data-act="cancel" aria-label="Cancel" title="Cancel"><svg class="icon icon-sm"><use href="#i-x"/></svg></button>
+              </div>
+            </article>
+
+            <article class="transfer-row lg" data-transfer data-speed-rate="0.25">
+              <span class="file-badge tone-sand"><svg class="icon"><use href="#i-file-zip"/></svg></span>
+              <div class="transfer-main">
+                <div class="transfer-top">
+                  <span class="transfer-name">design-assets.zip</span>
+                  <span class="transfer-dir">Receiving from <strong>MacBook</strong></span>
+                  <span class="transfer-pct" data-pct>48%</span>
+                </div>
+                <div class="progress lg"><div class="progress-fill" style="width:48%"></div></div>
+                <div class="transfer-meta">
+                  <span data-done>1.34 GB</span> of 2.8 GB
+                  <i class="sep"></i><span data-speed>61 MB/s</span>
+                  <i class="sep"></i><span data-eta>38 s remaining</span>
+                  <i class="sep"></i><span class="encrypted"><svg class="icon icon-xs"><use href="#i-lock"/></svg>Encrypted transfer</span>
+                </div>
+              </div>
+              <div class="transfer-actions">
+                <button class="icon-btn" data-act="pause" aria-label="Pause" title="Pause"><svg class="icon icon-sm"><use href="#i-pause"/></svg></button>
+                <button class="icon-btn" data-act="cancel" aria-label="Cancel" title="Cancel"><svg class="icon icon-sm"><use href="#i-x"/></svg></button>
+              </div>
+            </article>
+
+            <article class="transfer-row lg" data-transfer data-speed-rate="0.6">
+              <span class="file-badge tone-clay"><svg class="icon"><use href="#i-image"/></svg></span>
+              <div class="transfer-main">
+                <div class="transfer-top">
+                  <span class="transfer-name">vacation-photos</span>
+                  <span class="transfer-dir">Sending folder to <strong>Raspberry Pi</strong></span>
+                  <span class="transfer-pct" data-pct>99%</span>
+                </div>
+                <div class="progress lg"><div class="progress-fill" style="width:99%"></div></div>
+                <div class="transfer-meta">
+                  <span data-done>3.07 GB</span> of 3.1 GB
+                  <i class="sep"></i><span data-speed>84 MB/s</span>
+                  <i class="sep"></i><span data-eta>2 s remaining</span>
+                  <i class="sep"></i><span class="encrypted"><svg class="icon icon-xs"><use href="#i-lock"/></svg>Encrypted transfer</span>
+                </div>
+              </div>
+              <div class="transfer-actions">
+                <button class="icon-btn" data-act="pause" aria-label="Pause" title="Pause"><svg class="icon icon-sm"><use href="#i-pause"/></svg></button>
+                <button class="icon-btn" data-act="cancel" aria-label="Cancel" title="Cancel"><svg class="icon icon-sm"><use href="#i-x"/></svg></button>
+              </div>
+            </article>
+
+            <article class="transfer-row lg" data-transfer data-speed-rate="0.3">
+              <span class="file-badge tone-green"><svg class="icon"><use href="#i-file"/></svg></span>
+              <div class="transfer-main">
+                <div class="transfer-top">
+                  <span class="transfer-name">photos-summer.zip</span>
+                  <span class="transfer-dir">Receiving from <strong>iPhone 15</strong></span>
+                  <span class="transfer-pct" data-pct>12%</span>
+                </div>
+                <div class="progress lg"><div class="progress-fill" style="width:12%"></div></div>
+                <div class="transfer-meta">
+                  <span data-done>210 MB</span> of 1.8 GB
+                  <i class="sep"></i><span data-speed>24 MB/s</span>
+                  <i class="sep"></i><span data-eta>1 min remaining</span>
+                  <i class="sep"></i><span class="encrypted"><svg class="icon icon-xs"><use href="#i-lock"/></svg>Encrypted transfer</span>
+                </div>
+              </div>
+              <div class="transfer-actions">
+                <button class="icon-btn" data-act="pause" aria-label="Pause" title="Pause"><svg class="icon icon-sm"><use href="#i-pause"/></svg></button>
+                <button class="icon-btn" data-act="cancel" aria-label="Cancel" title="Cancel"><svg class="icon icon-sm"><use href="#i-x"/></svg></button>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="transfer-panel-queued" data-panel="queued" role="tabpanel" aria-labelledby="transfer-tab-queued" aria-hidden="true">
+          <div class="card list-card">
+            <article class="transfer-row lg is-queued">
+              <span class="file-badge tone-green"><svg class="icon"><use href="#i-file"/></svg></span>
+              <div class="transfer-main">
+                <div class="transfer-top">
+                  <span class="transfer-name">app-build.apk</span>
+                  <span class="transfer-dir">Sending to <strong>iPhone 15</strong></span>
+                  <span class="transfer-pct">0%</span>
+                </div>
+                <div class="progress lg"><div class="progress-fill" style="width:0%"></div></div>
+                <div class="transfer-meta"><span>Waiting for device to accept…</span><i class="sep"></i><span class="muted">86 MB</span></div>
+              </div>
+              <div class="transfer-actions">
+                <span class="spinner" aria-label="Connecting"></span>
+                <button class="icon-btn" data-act="cancel" aria-label="Cancel" title="Cancel"><svg class="icon icon-sm"><use href="#i-x"/></svg></button>
+              </div>
+            </article>
+            <article class="transfer-row lg is-queued">
+              <span class="file-badge tone-sand"><svg class="icon"><use href="#i-file-zip"/></svg></span>
+              <div class="transfer-main">
+                <div class="transfer-top">
+                  <span class="transfer-name">backup-2026.zip</span>
+                  <span class="transfer-dir">Sending to <strong>Raspberry Pi</strong></span>
+                  <span class="transfer-pct">0%</span>
+                </div>
+                <div class="progress lg"><div class="progress-fill" style="width:0%"></div></div>
+                <div class="transfer-meta"><span>Queued · starts after 2 active transfers finish</span><i class="sep"></i><span class="muted">4.6 GB</span></div>
+              </div>
+              <div class="transfer-actions">
+                <button class="icon-btn" data-act="cancel" aria-label="Cancel" title="Cancel"><svg class="icon icon-sm"><use href="#i-x"/></svg></button>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="transfer-panel-completed" data-panel="completed" role="tabpanel" aria-labelledby="transfer-tab-completed" aria-hidden="true">
+          <div class="card list-card">
+            <article class="transfer-row lg is-done">
+              <span class="file-badge tone-sand"><svg class="icon"><use href="#i-file-zip"/></svg></span>
+              <div class="transfer-main">
+                <div class="transfer-top">
+                  <span class="transfer-name">photos.zip</span>
+                  <span class="transfer-dir">Received from <strong>MacBook</strong></span>
+                  <span class="transfer-pct success"><svg class="icon icon-xs"><use href="#i-check"/></svg>Completed</span>
+                </div>
+                <div class="transfer-meta">
+                  2.4 GB<i class="sep"></i>89 MB/s avg<i class="sep"></i>Today · 15:02
+                  <i class="sep"></i><span class="encrypted"><svg class="icon icon-xs"><use href="#i-shield-check"/></svg>Verified</span>
+                </div>
+              </div>
+              <div class="transfer-actions">
+                <button class="btn btn-ghost btn-sm" data-act="folder">Open Folder</button>
+                <button class="icon-btn" data-act="menu" aria-label="More actions" title="More"><svg class="icon icon-sm"><use href="#i-more-h"/></svg></button>
+              </div>
+            </article>
+            <article class="transfer-row lg is-done">
+              <span class="file-badge tone-sand"><svg class="icon"><use href="#i-file-zip"/></svg></span>
+              <div class="transfer-main">
+                <div class="transfer-top">
+                  <span class="transfer-name">design-assets.zip</span>
+                  <span class="transfer-dir">Sent to <strong>Galaxy Phone</strong></span>
+                  <span class="transfer-pct success"><svg class="icon icon-xs"><use href="#i-check"/></svg>Completed</span>
+                </div>
+                <div class="transfer-meta">
+                  2.8 GB<i class="sep"></i>64 MB/s avg<i class="sep"></i>Today · 18:42
+                  <i class="sep"></i><span class="encrypted"><svg class="icon icon-xs"><use href="#i-shield-check"/></svg>Verified</span>
+                </div>
+              </div>
+              <div class="transfer-actions">
+                <button class="btn btn-ghost btn-sm" data-act="folder">Open Folder</button>
+                <button class="icon-btn" data-act="menu" aria-label="More actions" title="More"><svg class="icon icon-sm"><use href="#i-more-h"/></svg></button>
+              </div>
+            </article>
+            <article class="transfer-row lg is-done">
+              <span class="file-badge tone-red"><svg class="icon"><use href="#i-video"/></svg></span>
+              <div class="transfer-main">
+                <div class="transfer-top">
+                  <span class="transfer-name">movie.mkv</span>
+                  <span class="transfer-dir">Received from <strong>Living Room Tablet</strong></span>
+                  <span class="transfer-pct success"><svg class="icon icon-xs"><use href="#i-check"/></svg>Completed</span>
+                </div>
+                <div class="transfer-meta">
+                  1.5 GB<i class="sep"></i>31 MB/s avg<i class="sep"></i>Yesterday · 21:18
+                </div>
+              </div>
+              <div class="transfer-actions">
+                <button class="btn btn-ghost btn-sm" data-act="folder">Open Folder</button>
+                <button class="icon-btn" data-act="menu" aria-label="More actions" title="More"><svg class="icon icon-sm"><use href="#i-more-h"/></svg></button>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="transfer-panel-failed" data-panel="failed" role="tabpanel" aria-labelledby="transfer-tab-failed" aria-hidden="true">
+          <div class="card list-card">
+            <article class="transfer-row lg is-failed">
+              <span class="file-badge tone-red"><svg class="icon"><use href="#i-video"/></svg></span>
+              <div class="transfer-main">
+                <div class="transfer-top">
+                  <span class="transfer-name">movie.mkv</span>
+                  <span class="transfer-dir">Receiving from <strong>Galaxy Phone</strong></span>
+                  <span class="transfer-pct error"><svg class="icon icon-xs"><use href="#i-alert-circle"/></svg>Failed at 75%</span>
+                </div>
+                <div class="progress lg is-error"><div class="progress-fill" style="width:75%"></div></div>
+                <div class="transfer-meta">
+                  <span class="error-text">Connection to Galaxy Phone was interrupted.</span>
+                  <i class="sep"></i>1.8 GB of 2.4 GB transferred
+                  <i class="sep"></i>Today · 13:47
+                </div>
+              </div>
+              <div class="transfer-actions">
+                <button class="btn btn-secondary btn-sm" data-act="retry"><svg class="icon icon-sm"><use href="#i-refresh"/></svg>Retry</button>
+                <button class="btn btn-ghost btn-sm" data-act="details">View Details</button>
+                <button class="icon-btn" data-act="dismiss" aria-label="Dismiss" title="Dismiss"><svg class="icon icon-sm"><use href="#i-x"/></svg></button>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="transfer-panel-cancelled" data-panel="cancelled" role="tabpanel" aria-labelledby="transfer-tab-cancelled" aria-hidden="true">
+          <div class="empty-state">
+            <span class="empty-ic"><svg class="icon"><use href="#i-swap"/></svg></span>
+            <h4>No cancelled transfers</h4>
+            <p>Transfers you cancel will appear here for a short time in case you want to retry them.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= HISTORY ================= -->
+      <section class="page" data-page="history">
+        <div class="toolbar">
+          <div class="search-field">
+            <svg class="icon icon-sm"><use href="#i-search"/></svg>
+            <input type="text" id="historySearch" placeholder="Search history…" aria-label="Search history">
+          </div>
+          <button class="chip" aria-haspopup="menu"><svg class="icon icon-sm"><use href="#i-calendar"/></svg>Last 7 days<svg class="icon icon-xs"><use href="#i-chevron-down"/></svg></button>
+          <button class="chip" aria-haspopup="menu"><svg class="icon icon-sm"><use href="#i-monitor"/></svg>All devices<svg class="icon icon-xs"><use href="#i-chevron-down"/></svg></button>
+          <button class="chip" aria-haspopup="menu"><svg class="icon icon-sm"><use href="#i-swap"/></svg>Sent &amp; received<svg class="icon icon-xs"><use href="#i-chevron-down"/></svg></button>
+          <button class="chip" aria-haspopup="menu"><svg class="icon icon-sm"><use href="#i-file"/></svg>All types<svg class="icon icon-xs"><use href="#i-chevron-down"/></svg></button>
+          <span class="toolbar-spacer"></span>
+          <button class="chip" aria-haspopup="menu">Newest first<svg class="icon icon-xs"><use href="#i-chevron-down"/></svg></button>
+        </div>
+
+        <div class="card">
+          <table class="table history-table">
+            <thead>
+              <tr><th>File</th><th>Device</th><th>Direction</th><th class="num">Size</th><th class="num">Speed</th><th>Status</th><th class="num">When</th><th></th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="cell-file"><span class="file-badge sm tone-sand"><svg class="icon icon-xs"><use href="#i-file-zip"/></svg></span>design-assets.zip</span></td>
+                <td>Galaxy Phone</td>
+                <td><span class="dir sent"><svg class="icon icon-xs"><use href="#i-arrow-up-right"/></svg>Sent</span></td>
+                <td class="num">2.8 GB</td><td class="num">64 MB/s</td>
+                <td><span class="badge badge-success">Completed</span></td>
+                <td class="num">Today · 18:42</td>
+                <td class="row-menu"><button class="icon-btn" data-act="menu" aria-label="Row actions"><svg class="icon icon-sm"><use href="#i-more-h"/></svg></button></td>
+              </tr>
+              <tr>
+                <td><span class="cell-file"><span class="file-badge sm tone-sand"><svg class="icon icon-xs"><use href="#i-file-zip"/></svg></span>photos.zip</span></td>
+                <td>MacBook</td>
+                <td><span class="dir recv"><svg class="icon icon-xs"><use href="#i-arrow-down-left"/></svg>Received</span></td>
+                <td class="num">1.2 GB</td><td class="num">89 MB/s</td>
+                <td><span class="badge badge-success">Completed</span></td>
+                <td class="num">Yesterday · 21:18</td>
+                <td class="row-menu"><button class="icon-btn" data-act="menu" aria-label="Row actions"><svg class="icon icon-sm"><use href="#i-more-h"/></svg></button></td>
+              </tr>
+              <tr>
+                <td><span class="cell-file"><span class="file-badge sm tone-red"><svg class="icon icon-xs"><use href="#i-video"/></svg></span>movie.mkv</span></td>
+                <td>Galaxy Phone</td>
+                <td><span class="dir recv"><svg class="icon icon-xs"><use href="#i-arrow-down-left"/></svg>Received</span></td>
+                <td class="num">1.8 / 2.4 GB</td><td class="num">57 MB/s</td>
+                <td><span class="badge badge-error">Failed</span></td>
+                <td class="num">Today · 13:47</td>
+                <td class="row-menu"><button class="icon-btn" data-act="menu" aria-label="Row actions"><svg class="icon icon-sm"><use href="#i-more-h"/></svg></button></td>
+              </tr>
+              <tr>
+                <td><span class="cell-file"><span class="file-badge sm tone-red"><svg class="icon icon-xs"><use href="#i-file"/></svg></span>Q3_Report.pdf</span></td>
+                <td>Office Laptop</td>
+                <td><span class="dir recv"><svg class="icon icon-xs"><use href="#i-arrow-down-left"/></svg>Received</span></td>
+                <td class="num">4.2 MB</td><td class="num">22 MB/s</td>
+                <td><span class="badge badge-success">Completed</span></td>
+                <td class="num">Wed · 11:26</td>
+                <td class="row-menu"><button class="icon-btn" data-act="menu" aria-label="Row actions"><svg class="icon icon-sm"><use href="#i-more-h"/></svg></button></td>
+              </tr>
+              <tr>
+                <td><span class="cell-file"><span class="file-badge sm tone-clay"><svg class="icon icon-xs"><use href="#i-image"/></svg></span>vacation-photos</span></td>
+                <td>Raspberry Pi</td>
+                <td><span class="dir sent"><svg class="icon icon-xs"><use href="#i-arrow-up-right"/></svg>Sent</span></td>
+                <td class="num">3.1 GB</td><td class="num">82 MB/s</td>
+                <td><span class="badge badge-success">Completed</span></td>
+                <td class="num">Tue · 20:44</td>
+                <td class="row-menu"><button class="icon-btn" data-act="menu" aria-label="Row actions"><svg class="icon icon-sm"><use href="#i-more-h"/></svg></button></td>
+              </tr>
+              <tr>
+                <td><span class="cell-file"><span class="file-badge sm tone-green"><svg class="icon icon-xs"><use href="#i-file"/></svg></span>app-build.apk</span></td>
+                <td>iPhone 15</td>
+                <td><span class="dir sent"><svg class="icon icon-xs"><use href="#i-arrow-up-right"/></svg>Sent</span></td>
+                <td class="num">86 MB</td><td class="num">24 MB/s</td>
+                <td><span class="badge badge-success">Completed</span></td>
+                <td class="num">Tue · 19:03</td>
+                <td class="row-menu"><button class="icon-btn" data-act="menu" aria-label="Row actions"><svg class="icon icon-sm"><use href="#i-more-h"/></svg></button></td>
+              </tr>
+              <tr>
+                <td><span class="cell-file"><span class="file-badge sm tone-red"><svg class="icon icon-xs"><use href="#i-image"/></svg></span>IMG_2841.HEIC</span></td>
+                <td>iPhone 15</td>
+                <td><span class="dir recv"><svg class="icon icon-xs"><use href="#i-arrow-down-left"/></svg>Received</span></td>
+                <td class="num">3.4 MB</td><td class="num">18 MB/s</td>
+                <td><span class="badge badge-neutral">Cancelled</span></td>
+                <td class="num">Mon · 22:10</td>
+                <td class="row-menu"><button class="icon-btn" data-act="menu" aria-label="Row actions"><svg class="icon icon-sm"><use href="#i-more-h"/></svg></button></td>
+              </tr>
+              <tr>
+                <td><span class="cell-file"><span class="file-badge sm tone-slate"><svg class="icon icon-xs"><use href="#i-text"/></svg></span>meeting-notes.txt</span></td>
+                <td>MacBook</td>
+                <td><span class="dir recv"><svg class="icon icon-xs"><use href="#i-arrow-down-left"/></svg>Received</span></td>
+                <td class="num">12 KB</td><td class="num">9 MB/s</td>
+                <td><span class="badge badge-success">Completed</span></td>
+                <td class="num">Mon · 14:31</td>
+                <td class="row-menu"><button class="icon-btn" data-act="menu" aria-label="Row actions"><svg class="icon icon-sm"><use href="#i-more-h"/></svg></button></td>
+              </tr>
+              <tr>
+                <td><span class="cell-file"><span class="file-badge sm tone-sand"><svg class="icon icon-xs"><use href="#i-file-zip"/></svg></span>backup-2025.zip</span></td>
+                <td>Raspberry Pi</td>
+                <td><span class="dir recv"><svg class="icon icon-xs"><use href="#i-arrow-down-left"/></svg>Received</span></td>
+                <td class="num">4.6 GB</td><td class="num">11 MB/s</td>
+                <td><span class="badge badge-success">Completed</span></td>
+                <td class="num">Sun · 04:00</td>
+                <td class="row-menu"><button class="icon-btn" data-act="menu" aria-label="Row actions"><svg class="icon icon-sm"><use href="#i-more-h"/></svg></button></td>
+              </tr>
+              <tr>
+                <td><span class="cell-file"><span class="file-badge sm tone-violet"><svg class="icon icon-xs"><use href="#i-link"/></svg></span>figma.com/design/…</span></td>
+                <td>MacBook</td>
+                <td><span class="dir sent"><svg class="icon icon-xs"><use href="#i-arrow-up-right"/></svg>Sent</span></td>
+                <td class="num">142 B</td><td class="num">Instant</td>
+                <td><span class="badge badge-success">Completed</span></td>
+                <td class="num">Sun · 10:15</td>
+                <td class="row-menu"><button class="icon-btn" data-act="menu" aria-label="Row actions"><svg class="icon icon-sm"><use href="#i-more-h"/></svg></button></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="card-foot">
+            <span class="muted">Showing 10 of 128 transfers</span>
+            <div class="pager"><button class="btn btn-ghost btn-sm" disabled>Previous</button><button class="btn btn-ghost btn-sm">Next</button></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SHARED ================= -->
+      <section class="page" data-page="shared">
+        <div class="toolbar">
+          <div class="chips-row">
+            <button class="chip is-active">All <em>24</em></button>
+            <button class="chip">Files <em>6</em></button>
+            <button class="chip">Folders <em>2</em></button>
+            <button class="chip">Images <em>12</em></button>
+            <button class="chip">Videos <em>3</em></button>
+            <button class="chip">Links <em>5</em></button>
+            <button class="chip">Text <em>2</em></button>
+            <button class="chip">Clipboard <em>2</em></button>
+          </div>
+          <span class="toolbar-spacer"></span>
+          <div class="search-field slim">
+            <svg class="icon icon-sm"><use href="#i-search"/></svg>
+            <input type="text" placeholder="Filter shared items…" aria-label="Filter shared items">
+          </div>
+        </div>
+
+        <div class="shared-grid">
+          <article class="shared-card">
+            <div class="shared-preview tone-sand"><svg class="icon"><use href="#i-file-zip"/></svg><span class="shared-ext">ZIP</span></div>
+            <div class="shared-body">
+              <h4 class="shared-name">meeting-recording.zip</h4>
+              <p class="shared-meta">From MacBook · Today 16:20 · 182 MB</p>
+              <div class="shared-foot">
+                <span class="badge badge-neutral">Unsaved</span>
+                <div class="shared-actions">
+                  <button class="icon-btn" title="Open" aria-label="Open"><svg class="icon icon-sm"><use href="#i-external"/></svg></button>
+                  <button class="icon-btn" title="Save" aria-label="Save"><svg class="icon icon-sm"><use href="#i-download"/></svg></button>
+                  <button class="icon-btn" title="Forward" aria-label="Forward"><svg class="icon icon-sm"><use href="#i-forward"/></svg></button>
+                  <button class="icon-btn fav" title="Favorite" aria-label="Favorite"><svg class="icon icon-sm"><use href="#i-star"/></svg></button>
+                  <button class="icon-btn danger" title="Delete" aria-label="Delete"><svg class="icon icon-sm"><use href="#i-trash"/></svg></button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="shared-card">
+            <div class="shared-preview tone-violet"><svg class="icon"><use href="#i-link"/></svg><span class="shared-ext">URL</span></div>
+            <div class="shared-body">
+              <h4 class="shared-name">figma.com/design/dropsync-v2</h4>
+              <p class="shared-meta">From MacBook · Today 15:58</p>
+              <div class="shared-foot">
+                <span class="badge badge-neutral">Link</span>
+                <div class="shared-actions">
+                  <button class="icon-btn" title="Open" aria-label="Open"><svg class="icon icon-sm"><use href="#i-external"/></svg></button>
+                  <button class="icon-btn" title="Forward" aria-label="Forward"><svg class="icon icon-sm"><use href="#i-forward"/></svg></button>
+                  <button class="icon-btn fav is-on" title="Favorite" aria-label="Favorite"><svg class="icon icon-sm"><use href="#i-star"/></svg></button>
+                  <button class="icon-btn danger" title="Delete" aria-label="Delete"><svg class="icon icon-sm"><use href="#i-trash"/></svg></button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="shared-card">
+            <div class="shared-preview tone-clay"><svg class="icon"><use href="#i-image"/></svg><span class="shared-ext">IMG</span></div>
+            <div class="shared-body">
+              <h4 class="shared-name">whiteboard-photos</h4>
+              <p class="shared-meta">From iPhone 15 · Today 11:32 · 14 images · 48 MB</p>
+              <div class="shared-foot">
+                <span class="badge badge-success">Saved</span>
+                <div class="shared-actions">
+                  <button class="icon-btn" title="Open" aria-label="Open"><svg class="icon icon-sm"><use href="#i-external"/></svg></button>
+                  <button class="icon-btn" title="Save" aria-label="Save"><svg class="icon icon-sm"><use href="#i-download"/></svg></button>
+                  <button class="icon-btn" title="Forward" aria-label="Forward"><svg class="icon icon-sm"><use href="#i-forward"/></svg></button>
+                  <button class="icon-btn fav" title="Favorite" aria-label="Favorite"><svg class="icon icon-sm"><use href="#i-star"/></svg></button>
+                  <button class="icon-btn danger" title="Delete" aria-label="Delete"><svg class="icon icon-sm"><use href="#i-trash"/></svg></button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="shared-card">
+            <div class="shared-preview tone-red"><svg class="icon"><use href="#i-video"/></svg><span class="shared-ext">MP4</span></div>
+            <div class="shared-body">
+              <h4 class="shared-name">demo-capture.mp4</h4>
+              <p class="shared-meta">From Galaxy Phone · Yesterday 20:11 · 412 MB</p>
+              <div class="shared-foot">
+                <span class="badge badge-success">Saved</span>
+                <div class="shared-actions">
+                  <button class="icon-btn" title="Open" aria-label="Open"><svg class="icon icon-sm"><use href="#i-external"/></svg></button>
+                  <button class="icon-btn" title="Save" aria-label="Save"><svg class="icon icon-sm"><use href="#i-download"/></svg></button>
+                  <button class="icon-btn" title="Forward" aria-label="Forward"><svg class="icon icon-sm"><use href="#i-forward"/></svg></button>
+                  <button class="icon-btn fav" title="Favorite" aria-label="Favorite"><svg class="icon icon-sm"><use href="#i-star"/></svg></button>
+                  <button class="icon-btn danger" title="Delete" aria-label="Delete"><svg class="icon icon-sm"><use href="#i-trash"/></svg></button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="shared-card">
+            <div class="shared-preview tone-accent"><svg class="icon"><use href="#i-folder"/></svg><span class="shared-ext">DIR</span></div>
+            <div class="shared-body">
+              <h4 class="shared-name">design-assets</h4>
+              <p class="shared-meta">From MacBook · Yesterday 18:42 · 218 files · 3.1 GB</p>
+              <div class="shared-foot">
+                <span class="badge badge-success">Saved</span>
+                <div class="shared-actions">
+                  <button class="icon-btn" title="Open" aria-label="Open"><svg class="icon icon-sm"><use href="#i-external"/></svg></button>
+                  <button class="icon-btn" title="Save" aria-label="Save"><svg class="icon icon-sm"><use href="#i-download"/></svg></button>
+                  <button class="icon-btn" title="Forward" aria-label="Forward"><svg class="icon icon-sm"><use href="#i-forward"/></svg></button>
+                  <button class="icon-btn fav is-on" title="Favorite" aria-label="Favorite"><svg class="icon icon-sm"><use href="#i-star"/></svg></button>
+                  <button class="icon-btn danger" title="Delete" aria-label="Delete"><svg class="icon icon-sm"><use href="#i-trash"/></svg></button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="shared-card">
+            <div class="shared-preview tone-slate"><svg class="icon"><use href="#i-text"/></svg><span class="shared-ext">TXT</span></div>
+            <div class="shared-body">
+              <h4 class="shared-name">Clipboard text example</h4>
+              <p class="shared-meta">From Galaxy Phone · Yesterday 12:04 · Text snippet</p>
+              <div class="shared-foot">
+                <span class="badge badge-neutral">Clipboard</span>
+                <div class="shared-actions">
+                  <button class="icon-btn" title="Copy" aria-label="Copy"><svg class="icon icon-sm"><use href="#i-copy"/></svg></button>
+                  <button class="icon-btn" title="Forward" aria-label="Forward"><svg class="icon icon-sm"><use href="#i-forward"/></svg></button>
+                  <button class="icon-btn fav" title="Favorite" aria-label="Favorite"><svg class="icon icon-sm"><use href="#i-star"/></svg></button>
+                  <button class="icon-btn danger" title="Delete" aria-label="Delete"><svg class="icon icon-sm"><use href="#i-trash"/></svg></button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="shared-card is-expiring">
+            <div class="shared-preview tone-red"><svg class="icon"><use href="#i-file"/></svg><span class="shared-ext">PDF</span></div>
+            <div class="shared-body">
+              <h4 class="shared-name">Scan_2026-09-02.pdf</h4>
+              <p class="shared-meta">From Office Laptop · Mon 09:47 · 8.2 MB</p>
+              <div class="shared-foot">
+                <span class="badge badge-warning"><svg class="icon icon-xs"><use href="#i-alert-triangle"/></svg>Expires in 3 days</span>
+                <div class="shared-actions">
+                  <button class="icon-btn" title="Open" aria-label="Open"><svg class="icon icon-sm"><use href="#i-external"/></svg></button>
+                  <button class="icon-btn" title="Save" aria-label="Save"><svg class="icon icon-sm"><use href="#i-download"/></svg></button>
+                  <button class="icon-btn danger" title="Delete" aria-label="Delete"><svg class="icon icon-sm"><use href="#i-trash"/></svg></button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="shared-card">
+            <div class="shared-preview tone-slate"><svg class="icon"><use href="#i-clipboard"/></svg><span class="shared-ext">CLIP</span></div>
+            <div class="shared-body">
+              <h4 class="shared-name">“Local build notes…”</h4>
+              <p class="shared-meta">From MacBook · Today 14:02 · Clipboard item</p>
+              <div class="shared-foot">
+                <span class="badge badge-neutral">Clipboard</span>
+                <div class="shared-actions">
+                  <button class="icon-btn" title="Copy" aria-label="Copy"><svg class="icon icon-sm"><use href="#i-copy"/></svg></button>
+                  <button class="icon-btn" title="Send to device" aria-label="Send to device"><svg class="icon icon-sm"><use href="#i-send"/></svg></button>
+                  <button class="icon-btn fav" title="Favorite" aria-label="Favorite"><svg class="icon icon-sm"><use href="#i-star"/></svg></button>
+                  <button class="icon-btn danger" title="Delete" aria-label="Delete"><svg class="icon icon-sm"><use href="#i-trash"/></svg></button>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ================= FAVORITES ================= -->
+      <section class="page" data-page="favorites">
+        <div class="section-head">
+          <div><h3 class="section-title">Favorite Devices</h3><p class="section-sub">Pinned for quick access</p></div>
+          <button class="btn btn-ghost btn-sm" data-nav-to="nearby">Find devices</button>
+        </div>
+        <div class="fav-device-row">
+          <button class="fav-device" data-drawer="galaxy-phone">
+            <span class="device-ic lg"><svg class="icon"><use href="#i-phone"/></svg></span>
+            <span class="fav-device-body"><strong>Galaxy Phone</strong><span><span class="dot success"></span>Online · Excellent</span></span>
+            <span class="icon-btn fav is-on" aria-label="Remove from favorites"><svg class="icon icon-sm"><use href="#i-star"/></svg></span>
+          </button>
+          <button class="fav-device" data-drawer="raspberry-pi">
+            <span class="device-ic lg"><svg class="icon"><use href="#i-pi"/></svg></span>
+            <span class="fav-device-body"><strong>Raspberry Pi</strong><span><span class="dot success"></span>Online · Excellent</span></span>
+            <span class="icon-btn fav is-on" aria-label="Remove from favorites"><svg class="icon icon-sm"><use href="#i-star"/></svg></span>
+          </button>
+          <button class="fav-device add" data-nav-to="nearby">
+            <span class="device-ic lg dashed"><svg class="icon"><use href="#i-plus"/></svg></span>
+            <span class="fav-device-body"><strong>Add device</strong><span>Pin a frequently used device</span></span>
+          </button>
+        </div>
+
+        <div class="fav-cols">
+          <div class="card">
+            <div class="card-head"><h4 class="card-title">Favorite Files</h4></div>
+            <ul class="row-list">
+              <li>
+                <span class="file-badge tone-sand"><svg class="icon icon-sm"><use href="#i-file-zip"/></svg></span>
+                <div class="row-body"><p>design-assets.zip</p><span>3.1 GB · from MacBook</span></div>
+                <button class="icon-btn fav is-on" aria-label="Remove from favorites"><svg class="icon icon-sm"><use href="#i-star"/></svg></button>
+              </li>
+              <li>
+                <span class="file-badge tone-red"><svg class="icon icon-sm"><use href="#i-file"/></svg></span>
+                <div class="row-body"><p>Q3_Report.pdf</p><span>4.2 MB · from Office Laptop</span></div>
+                <button class="icon-btn fav is-on" aria-label="Remove from favorites"><svg class="icon icon-sm"><use href="#i-star"/></svg></button>
+              </li>
+              <li>
+                <span class="file-badge tone-clay"><svg class="icon icon-sm"><use href="#i-image"/></svg></span>
+                <div class="row-body"><p>whiteboard-photos</p><span>48 MB · from iPhone 15</span></div>
+                <button class="icon-btn fav is-on" aria-label="Remove from favorites"><svg class="icon icon-sm"><use href="#i-star"/></svg></button>
+              </li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h4 class="card-title">Favorite Links</h4></div>
+            <ul class="row-list">
+              <li>
+                <span class="file-badge tone-violet"><svg class="icon icon-sm"><use href="#i-link"/></svg></span>
+                <div class="row-body"><p>figma.com/design/dropsync-v2</p><span>Sent to Galaxy Phone · Today</span></div>
+                <button class="icon-btn fav is-on" aria-label="Remove from favorites"><svg class="icon icon-sm"><use href="#i-star"/></svg></button>
+              </li>
+              <li>
+                <span class="file-badge tone-violet"><svg class="icon icon-sm"><use href="#i-link"/></svg></span>
+                <div class="row-body"><p>github.com/dropsync/releases</p><span>Received from MacBook · Mon</span></div>
+                <button class="icon-btn fav is-on" aria-label="Remove from favorites"><svg class="icon icon-sm"><use href="#i-star"/></svg></button>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h4 class="card-title">Favorite Transfers</h4><span class="badge badge-neutral">0</span></div>
+          <div class="empty-state slim">
+            <span class="empty-ic"><svg class="icon"><use href="#i-star"/></svg></span>
+            <h4>No favorite transfers</h4>
+            <p>Star a transfer from History to pin it here for quick access.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= CONTACTS ================= -->
+      <section class="page" data-page="contacts">
+        <div class="toolbar">
+          <div class="search-field">
+            <svg class="icon icon-sm"><use href="#i-search"/></svg>
+            <input type="text" placeholder="Search saved devices…" aria-label="Search contacts">
+          </div>
+          <div class="seg" role="tablist">
+            <button class="seg-btn is-active">All</button>
+            <button class="seg-btn">Trusted</button>
+            <button class="seg-btn">Favorites</button>
+          </div>
+          <span class="toolbar-spacer"></span>
+          <button class="btn btn-secondary btn-sm" data-open-modal="pairing"><svg class="icon icon-sm"><use href="#i-qr"/></svg>Pair New Device</button>
+        </div>
+
+        <div class="card">
+          <table class="table contacts-table">
+            <thead>
+              <tr><th>Device</th><th>Type</th><th>Last seen</th><th>Trust</th><th>Status</th><th class="num">Actions</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="cell-file"><span class="device-ic sm"><svg class="icon icon-xs"><use href="#i-phone"/></svg></span><div><p>Galaxy Phone</p><span class="muted">Amara</span></div></span></td>
+                <td>Android</td><td>Just now</td>
+                <td><span class="badge badge-accent-soft"><svg class="icon icon-xs"><use href="#i-shield-check"/></svg>Trusted</span></td>
+                <td><span class="dot success"></span>Online</td>
+                <td class="num">
+                  <div class="row-actions">
+                    <button class="btn btn-secondary btn-xs">Connect</button>
+                    <button class="btn btn-primary btn-xs">Send</button>
+                    <button class="icon-btn" aria-label="More actions"><svg class="icon icon-sm"><use href="#i-more-h"/></svg></button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><span class="cell-file"><span class="device-ic sm"><svg class="icon icon-xs"><use href="#i-laptop"/></svg></span><div><p>MacBook</p><span class="muted">Work</span></div></span></td>
+                <td>macOS</td><td>5 min ago</td>
+                <td><span class="badge badge-accent-soft"><svg class="icon icon-xs"><use href="#i-shield-check"/></svg>Trusted</span></td>
+                <td><span class="dot success"></span>Online</td>
+                <td class="num">
+                  <div class="row-actions">
+                    <button class="btn btn-secondary btn-xs">Connect</button>
+                    <button class="btn btn-primary btn-xs">Send</button>
+                    <button class="icon-btn" aria-label="More actions"><svg class="icon icon-sm"><use href="#i-more-h"/></svg></button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><span class="cell-file"><span class="device-ic sm"><svg class="icon icon-xs"><use href="#i-pi"/></svg></span><div><p>Raspberry Pi</p><span class="muted">Home server</span></div></span></td>
+                <td>Linux</td><td>2 min ago</td>
+                <td><span class="badge badge-accent-soft"><svg class="icon icon-xs"><use href="#i-shield-check"/></svg>Trusted</span></td>
+                <td><span class="dot success"></span>Online</td>
+                <td class="num">
+                  <div class="row-actions">
+                    <button class="btn btn-secondary btn-xs">Connect</button>
+                    <button class="btn btn-primary btn-xs">Send</button>
+                    <button class="icon-btn" aria-label="More actions"><svg class="icon icon-sm"><use href="#i-more-h"/></svg></button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><span class="cell-file"><span class="device-ic sm"><svg class="icon icon-xs"><use href="#i-phone"/></svg></span><div><p>iPhone 15</p><span class="muted">Personal</span></div></span></td>
+                <td>iPhone</td><td>12 min ago</td>
+                <td><span class="badge badge-neutral"><svg class="icon icon-xs"><use href="#i-shield"/></svg>Not trusted</span></td>
+                <td><span class="dot success"></span>Online</td>
+                <td class="num">
+                  <div class="row-actions">
+                    <button class="btn btn-secondary btn-xs">Connect</button>
+                    <button class="btn btn-primary btn-xs">Send</button>
+                    <button class="icon-btn" aria-label="More actions"><svg class="icon icon-sm"><use href="#i-more-h"/></svg></button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><span class="cell-file"><span class="device-ic sm"><svg class="icon icon-xs"><use href="#i-tablet"/></svg></span><div><p>Living Room Tablet</p><span class="muted">Shared</span></div></span></td>
+                <td>iPad</td><td>3 h ago</td>
+                <td><span class="badge badge-accent-soft"><svg class="icon icon-xs"><use href="#i-shield-check"/></svg>Trusted</span></td>
+                <td><span class="dot muted"></span>Offline</td>
+                <td class="num">
+                  <div class="row-actions">
+                    <button class="btn btn-secondary btn-xs" disabled>Connect</button>
+                    <button class="btn btn-primary btn-xs" disabled>Send</button>
+                    <button class="icon-btn" aria-label="More actions"><svg class="icon icon-sm"><use href="#i-more-h"/></svg></button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><span class="cell-file"><span class="device-ic sm"><svg class="icon icon-xs"><use href="#i-laptop"/></svg></span><div><p>Office Laptop</p><span class="muted">Work</span></div></span></td>
+                <td>Windows</td><td>Yesterday</td>
+                <td><span class="badge badge-accent-soft"><svg class="icon icon-xs"><use href="#i-shield-check"/></svg>Trusted</span></td>
+                <td><span class="dot muted"></span>Offline</td>
+                <td class="num">
+                  <div class="row-actions">
+                    <button class="btn btn-secondary btn-xs" disabled>Connect</button>
+                    <button class="btn btn-primary btn-xs" disabled>Send</button>
+                    <button class="icon-btn" aria-label="More actions"><svg class="icon icon-sm"><use href="#i-more-h"/></svg></button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================= STORAGE ================= -->
+      <section class="page" data-page="storage">
+        <div class="storage-grid">
+          <div class="card storage-main">
+            <div class="card-head"><h4 class="card-title">Local Storage</h4><button class="btn btn-ghost btn-sm">Open directory</button></div>
+            <div class="storage-hero">
+              <svg class="donut lg" viewBox="0 0 120 120" role="img" aria-label="148 of 256 GB used">
+                <circle class="donut-track" cx="60" cy="60" r="50"/>
+                <circle class="donut-fill" cx="60" cy="60" r="50"/>
+                <text x="60" y="55" class="donut-num">148 GB</text>
+                <text x="60" y="71" class="donut-cap">of 256 GB used</text>
+              </svg>
+              <ul class="storage-breakdown">
+                <li><i style="--c:#6AA3D8"></i><div><p>Applications</p><span>Productivity &amp; development tools</span></div><b>42 GB</b></li>
+                <li><i style="--c:#53B89E"></i><div><p>Files &amp; documents</p><span>Documents, media, downloads</span></div><b>61 GB</b></li>
+                <li><i style="--c:#C7A25C"></i><div><p>Transfers</p><span>Received files kept on disk</span></div><b>24 GB</b></li>
+                <li><i style="--c:#A08BD0"></i><div><p>Transfer cache</p><span>Temporary chunks &amp; partials</span></div><b>8 GB</b></li>
+                <li><i style="--c:#6E7681"></i><div><p>Other</p><span>System &amp; app data</span></div><b>13 GB</b></li>
+              </ul>
+            </div>
+            <div class="storage-bar" role="img" aria-label="Storage usage bar">
+              <i style="flex:42;--c:#6AA3D8"></i><i style="flex:61;--c:#53B89E"></i><i style="flex:24;--c:#C7A25C"></i><i style="flex:8;--c:#A08BD0"></i><i style="flex:13;--c:#6E7681"></i><i class="free" style="flex:108"></i>
+            </div>
+            <p class="mini-note">Free <b>108 GB</b> of 256 GB · SSD (C:)</p>
+          </div>
+
+          <div class="storage-side">
+            <div class="card">
+              <div class="card-head"><h4 class="card-title">Transfer Storage</h4></div>
+              <ul class="row-list">
+                <li>
+                  <span class="file-badge tone-violet"><svg class="icon icon-sm"><use href="#i-database"/></svg></span>
+                  <div class="row-body"><p>Transfer cache</p><span>Cleared automatically after 7 days</span></div><b>8.2 GB</b>
+                </li>
+                <li>
+                  <span class="file-badge tone-clay"><svg class="icon icon-sm"><use href="#i-clock"/></svg></span>
+                  <div class="row-body"><p>Temporary files</p><span>Removed when transfers finish</span></div><b>1.1 GB</b>
+                </li>
+                <li>
+                  <span class="file-badge tone-slate"><svg class="icon icon-sm"><use href="#i-book"/></svg></span>
+                  <div class="row-body"><p>Transfer records</p><span>History metadata only</span></div><b>214 MB</b>
+                </li>
+              </ul>
+              <div class="card-actions">
+                <button class="btn btn-secondary btn-sm" id="clearCache"><svg class="icon icon-sm"><use href="#i-trash"/></svg>Clear Transfer Cache</button>
+                <button class="btn btn-ghost btn-sm">Manage Storage</button>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h4 class="card-title">Recent Cache Items</h4></div>
+              <ul class="row-list compact">
+                <li><span class="file-badge sm tone-sand"><svg class="icon icon-xs"><use href="#i-file-zip"/></svg></span><div class="row-body"><p>Project_Backup.zip.part</p><span>Partial · 1.73 GB</span></div><span class="badge badge-neutral">Active</span></li>
+                <li><span class="file-badge sm tone-red"><svg class="icon icon-xs"><use href="#i-video"/></svg></span><div class="row-body"><p>movie.mkv.part</p><span>Failed transfer · 1.8 GB</span></div><button class="icon-btn danger" aria-label="Delete"><svg class="icon icon-sm"><use href="#i-trash"/></svg></button></li>
+                <li><span class="file-badge sm tone-clay"><svg class="icon icon-xs"><use href="#i-image"/></svg></span><div class="row-body"><p>thumb-cache</p><span>Preview thumbnails · 340 MB</span></div><button class="icon-btn danger" aria-label="Delete"><svg class="icon icon-sm"><use href="#i-trash"/></svg></button></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= NETWORK ================= -->
+      <section class="page" data-page="network">
+        <div class="network-grid">
+          <div class="card">
+            <div class="card-head">
+              <h4 class="card-title">Connection</h4>
+              <span class="badge badge-success"><span class="dot success"></span>Connected</span>
+            </div>
+            <div class="net-hero">
+              <span class="net-ic lg"><svg class="icon"><use href="#i-wifi"/></svg></span>
+              <div>
+                <p class="net-name">Home Wi-Fi</p>
+                <p class="net-meta">Wi-Fi 6 · 5 GHz · Excellent signal (−42 dBm)</p>
+              </div>
+            </div>
+            <dl class="spec-list two-col">
+              <div><dt>Connection type</dt><dd>Wi-Fi (wlan0)</dd></div>
+              <div><dt>Local IP</dt><dd class="mono">192.168.1.25</dd></div>
+              <div><dt>Gateway</dt><dd class="mono">192.168.1.1</dd></div>
+              <div><dt>Link speed</dt><dd>866 Mbps</dd></div>
+              <div><dt>Latency</dt><dd>2 ms</dd></div>
+              <div><dt>Est. throughput</dt><dd>94 MB/s</dd></div>
+              <div><dt>Discovery</dt><dd><span class="dot accent"></span>Active · mDNS</dd></div>
+              <div><dt>IPv6</dt><dd class="muted">Not available</dd></div>
+            </dl>
+            <div class="card-actions">
+              <button class="btn btn-secondary btn-sm" id="refreshNet"><svg class="icon icon-sm"><use href="#i-refresh"/></svg>Refresh Network</button>
+              <button class="btn btn-secondary btn-sm" id="runTest"><svg class="icon icon-sm"><use href="#i-activity"/></svg>Run Connection Test</button>
+            </div>
+            <div class="test-result" id="testResult" hidden>
+              <div class="progress slim"><div class="progress-fill" style="width:0%"></div></div>
+              <p class="test-note" id="testNote">Running connection test…</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h4 class="card-title">Devices on This Network</h4><span class="badge badge-neutral">7 discovered · 2 offline</span></div>
+            <div class="netgraph">
+              <svg viewBox="0 0 560 300" role="img" aria-label="Map of nearby devices connected to your router">
+                <line x1="280" y1="150" x2="120" y2="70" class="edge q4"/>
+                <line x1="280" y1="150" x2="445" y2="75" class="edge q3"/>
+                <line x1="280" y1="150" x2="105" y2="225" class="edge q4"/>
+                <line x1="280" y1="150" x2="450" y2="220" class="edge q3"/>
+                <line x1="280" y1="150" x2="285" y2="42" class="edge offline"/>
+                <line x1="280" y1="150" x2="280" y2="262" class="edge q4"/>
+                <g transform="translate(280,150)">
+                  <circle r="30" class="node router"/>
+                  <g class="node-icon"><rect x="-9" y="-9" width="18" height="18" rx="4"/></g>
+                  <text y="48" class="node-label">Home Wi-Fi</text>
+                  <text y="62" class="node-sub">192.168.1.1</text>
+                </g>
+                <g transform="translate(120,70)">
+                  <circle r="22" class="node"/>
+                  <path class="node-icon" d="M-6 3h12M-4 3v-8h8v8M-6 3l-1.5 2h15L12.5 3z" transform="translate(-3,-1)"/>
+                  <circle cx="16" cy="-14" r="4" class="status-dot"/>
+                  <text y="40" class="node-label">Taxperia-PC</text>
+                  <text y="54" class="node-sub">This device</text>
+                </g>
+                <g transform="translate(445,75)">
+                  <circle r="22" class="node"/>
+                  <path class="node-icon" d="M-4-10h8v13h-8zM-6 5h12" transform="translate(0,-1)"/>
+                  <circle cx="16" cy="-14" r="4" class="status-dot"/>
+                  <text y="40" class="node-label">Galaxy Phone</text>
+                  <text y="54" class="node-sub">Excellent · 42 MB/s</text>
+                </g>
+                <g transform="translate(105,225)">
+                  <circle r="22" class="node"/>
+                  <path class="node-icon" d="M-7-7h14v14h-14zM-7-3h-3M-7 3h-3M7-3h3M7 3h3M-3-7v-3M3-7v-3M-3 7v3M3 7v3" transform="scale(.8)"/>
+                  <circle cx="16" cy="-14" r="4" class="status-dot"/>
+                  <text y="40" class="node-label">Raspberry Pi</text>
+                  <text y="54" class="node-sub">Excellent · 11 MB/s</text>
+                </g>
+                <g transform="translate(450,220)">
+                  <circle r="22" class="node"/>
+                  <path class="node-icon" d="M-4-10h8v13h-8zM-6 5h12" transform="translate(0,-1)"/>
+                  <circle cx="16" cy="-14" r="4" class="status-dot"/>
+                  <text y="40" class="node-label">MacBook</text>
+                  <text y="54" class="node-sub">Good · 28 MB/s</text>
+                </g>
+                <g transform="translate(285,42)">
+                  <circle r="18" class="node offline"/>
+                  <path class="node-icon" d="M-3-8h6v10h-6zM-5 4h10" transform="scale(.85)"/>
+                  <text y="36" class="node-label dim">Living Room Tablet</text>
+                  <text y="49" class="node-sub">Offline</text>
+                </g>
+                <g transform="translate(280,262)">
+                  <circle r="18" class="node offline"/>
+                  <path class="node-icon" d="M-5-6h10v8h-10zM-7 4h14l-1.5-2h-11z" transform="scale(.85)"/>
+                  <text y="34" class="node-label dim">Office Laptop</text>
+                  <text y="47" class="node-sub">Offline</text>
+                </g>
+              </svg>
+              <p class="mini-note center">Direct device-to-device connections on your local network. Nothing leaves it.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h4 class="card-title">Connection Log</h4><button class="btn btn-ghost btn-sm">Export log</button></div>
+          <ul class="log-list mono">
+            <li><span>18:44:02</span><span class="log-tag ok">DISCOVER</span>Galaxy Phone announced itself on Home Wi-Fi (mDNS)</li>
+            <li><span>18:43:57</span><span class="log-tag ok">SESSION</span>Authenticated encrypted session established</li>
+            <li><span>18:42:10</span><span class="log-tag ok">TRANSFER</span>design-assets.zip → Galaxy Phone · started</li>
+            <li><span>16:20:44</span><span class="log-tag info">PAIRING</span>MacBook verified · pairing code matched</li>
+            <li><span>13:47:31</span><span class="log-tag err">ERROR</span>Transfer movie.mkv interrupted · connection lost</li>
+            <li><span>09:12:05</span><span class="log-tag ok">CONNECT</span>Raspberry Pi connected · trusted device</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ================= SETTINGS (fallback page → opens modal) ================= -->
+      <section class="page" data-page="settings-page">
+        <div class="empty-state">
+          <span class="empty-ic"><svg class="icon"><use href="#i-gear"/></svg></span>
+          <h4>Settings</h4>
+          <p>Settings open in a focused window so you can keep an eye on your transfers.</p>
+          <button class="btn btn-primary btn-sm" data-open-modal="settings">Open Settings</button>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="statusbar">
+      <span class="statusbar-item"><span class="dot success"></span>Connected · Home Wi-Fi (866 Mbps)</span>
+      <span class="statusbar-item"><svg class="icon icon-xs"><use href="#i-shield-check"/></svg>Encrypted transfers active</span>
+      <span class="statusbar-spacer"></span>
+      <span class="statusbar-item muted">4 transfers in progress</span>
+      <span class="statusbar-item muted mono">v0.7.0 · local-first</span>
+    </footer>
+
+    <nav class="mobile-nav" aria-label="Mobile navigation">
+      <button class="mobile-nav-item is-active" type="button" data-nav="dashboard"><svg class="icon"><use href="#i-dashboard"/></svg><span>Home</span></button>
+      <button class="mobile-nav-item" type="button" data-nav="nearby"><svg class="icon"><use href="#i-radar"/></svg><span>Nearby</span></button>
+      <button class="mobile-nav-item" type="button" data-nav="transfers"><span class="mobile-nav-icon"><svg class="icon"><use href="#i-swap"/></svg><em>4</em></span><span>Transfers</span></button>
+      <button class="mobile-nav-item" type="button" data-nav="shared"><svg class="icon"><use href="#i-box"/></svg><span>Shared</span></button>
+      <button class="mobile-nav-item" id="mobileMoreBtn" type="button" aria-label="Open all navigation" aria-controls="sidebarNav" aria-expanded="false"><svg class="icon"><use href="#i-grid"/></svg><span>More</span></button>
+    </nav>
+  </div>
+</div>
+
+<!-- ============ DEVICE DRAWER ============ -->
+<div class="drawer-backdrop" id="drawerBackdrop" hidden></div>
+<aside class="drawer" id="deviceDrawer" role="dialog" aria-modal="true" aria-label="Device details" hidden>
+  <header class="drawer-head">
+    <span class="device-ic lg" id="dIcon"><svg class="icon"><use href="#i-phone"/></svg></span>
+    <div class="drawer-title">
+      <h3 id="dName">Galaxy Phone</h3>
+      <p id="dType">Android · Amara</p>
+    </div>
+    <button class="icon-btn" id="drawerClose" aria-label="Close"><svg class="icon"><use href="#i-x"/></svg></button>
+  </header>
+
+  <div class="drawer-status">
+    <span class="badge badge-neutral" id="dStatus"><span class="dot success"></span>Connected</span>
+    <span class="badge badge-accent-soft" id="dTrust"><svg class="icon icon-xs"><use href="#i-shield-check"/></svg>Trusted device</span>
+  </div>
+
+  <div class="drawer-actions">
+    <button class="btn btn-primary" data-open-modal="send"><svg class="icon icon-sm"><use href="#i-send"/></svg>Send Files</button>
+    <button class="icon-btn" aria-label="More actions" title="More actions"><svg class="icon"><use href="#i-more-h"/></svg></button>
+  </div>
+
+  <div class="drawer-section">
+    <h5>Connection</h5>
+    <dl class="spec-list">
+      <div><dt>Status</dt><dd id="dConn">Connected · Wi-Fi</dd></div>
+      <div><dt>Quality</dt><dd id="dQuality"><span class="qbars inline"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span>Excellent</dd></div>
+      <div><dt>Encryption</dt><dd><svg class="icon icon-xs dd-icon"><use href="#i-lock"/></svg>X25519 · AES-256-GCM</dd></div>
+      <div><dt>Local address</dt><dd class="mono" id="dIp">192.168.1.34</dd></div>
+    </dl>
+  </div>
+
+  <div class="drawer-section">
+    <h5>Transfer activity</h5>
+    <dl class="spec-list">
+      <div><dt>Last transfer</dt><dd id="dLastXfer">photos.zip · Today 15:02</dd></div>
+      <div><dt>Total transferred</dt><dd id="dTotal">18.6 GB</dd></div>
+      <div><dt>Est. speed</dt><dd id="dSpeed">42 MB/s</dd></div>
+    </dl>
+  </div>
+
+  <div class="drawer-section">
+    <h5>Send content</h5>
+    <div class="send-tiles">
+      <button class="send-tile" data-open-modal="send"><svg class="icon icon-sm"><use href="#i-file"/></svg><span>Send Files</span></button>
+      <button class="send-tile" data-open-modal="send" data-mode="folder"><svg class="icon icon-sm"><use href="#i-folder"/></svg><span>Send Folder</span></button>
+      <button class="send-tile" data-open-modal="send" data-mode="text"><svg class="icon icon-sm"><use href="#i-message"/></svg><span>Send Text</span></button>
+      <button class="send-tile" data-open-modal="send" data-mode="link"><svg class="icon icon-sm"><use href="#i-link"/></svg><span>Send Link</span></button>
+      <button class="send-tile" data-open-modal="clipboard"><svg class="icon icon-sm"><use href="#i-clipboard"/></svg><span>Share Clipboard</span></button>
+    </div>
+  </div>
+
+  <div class="drawer-section">
+    <h5>Manage device</h5>
+    <ul class="link-list">
+      <li><button><svg class="icon icon-sm"><use href="#i-star"/></svg>Add to Favorites</button></li>
+      <li><button><svg class="icon icon-sm"><use href="#i-pencil"/></svg>Rename</button></li>
+      <li><button><svg class="icon icon-sm"><use href="#i-shield-check"/></svg>Trust Device</button></li>
+      <li><button><svg class="icon icon-sm"><use href="#i-eye"/></svg>View Details</button></li>
+      <li><button class="danger"><svg class="icon icon-sm"><use href="#i-unplug"/></svg>Disconnect</button></li>
+    </ul>
+  </div>
+</aside>
+
+<!-- ============ SETTINGS MODAL ============ -->
+<div class="overlay" id="ov-settings" hidden>
+  <div class="modal modal-xl" role="dialog" aria-modal="true" aria-labelledby="settingsDialogTitle">
+    <header class="modal-head">
+      <h3 id="settingsDialogTitle">Settings</h3>
+      <button class="icon-btn" data-close-modal aria-label="Close"><svg class="icon"><use href="#i-x"/></svg></button>
+    </header>
+    <div class="settings-layout">
+      <nav class="settings-nav" id="settingsNav" aria-label="Settings categories"></nav>
+      <div class="settings-pane" id="settingsPane"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SEND FLOW MODAL ============ -->
+<div class="overlay" id="ov-send" hidden>
+  <div class="modal modal-lg" role="dialog" aria-modal="true" aria-labelledby="sendTitle">
+    <header class="modal-head">
+      <h3 id="sendTitle">Send to…</h3>
+      <button class="icon-btn" data-close-modal aria-label="Close"><svg class="icon"><use href="#i-x"/></svg></button>
+    </header>
+
+    <div class="send-step is-active" data-step="1">
+      <div class="send-cols">
+        <div class="send-devices">
+          <h5>Choose a device</h5>
+          <div class="send-device-list" id="sendDeviceList">
+            <button class="send-device is-selected" data-device="Galaxy Phone" data-icon="i-phone"><span class="device-ic sm"><svg class="icon icon-xs"><use href="#i-phone"/></svg></span><span class="row-body"><p>Galaxy Phone</p><span><span class="dot success"></span>Excellent · 42 MB/s</span></span><svg class="icon icon-sm check"><use href="#i-check"/></svg></button>
+            <button class="send-device" data-device="MacBook" data-icon="i-laptop"><span class="device-ic sm"><svg class="icon icon-xs"><use href="#i-laptop"/></svg></span><span class="row-body"><p>MacBook</p><span><span class="dot success"></span>Good · 28 MB/s</span></span><svg class="icon icon-sm check"><use href="#i-check"/></svg></button>
+            <button class="send-device" data-device="Raspberry Pi" data-icon="i-pi"><span class="device-ic sm"><svg class="icon icon-xs"><use href="#i-pi"/></svg></span><span class="row-body"><p>Raspberry Pi</p><span><span class="dot success"></span>Excellent · 11 MB/s</span></span><svg class="icon icon-sm check"><use href="#i-check"/></svg></button>
+            <button class="send-device" data-device="iPhone 15" data-icon="i-phone"><span class="device-ic sm"><svg class="icon icon-xs"><use href="#i-phone"/></svg></span><span class="row-body"><p>iPhone 15</p><span><span class="dot success"></span>Good · 24 MB/s</span></span><svg class="icon icon-sm check"><use href="#i-check"/></svg></button>
+            <button class="send-device" data-device="Taxperia-PC" data-icon="i-monitor"><span class="device-ic sm"><svg class="icon icon-xs"><use href="#i-monitor"/></svg></span><span class="row-body"><p>Taxperia-PC</p><span><span class="dot success"></span>This device</span></span><svg class="icon icon-sm check"><use href="#i-check"/></svg></button>
+          </div>
+        </div>
+
+        <div class="send-dropzone-wrap">
+          <div class="dropzone" id="dropzone" tabindex="0">
+            <span class="dropzone-ic"><svg class="icon"><use href="#i-cloud-up"/></svg></span>
+            <p class="dropzone-title">Drop files here</p>
+            <p class="dropzone-sub">or choose from your computer</p>
+            <div class="dropzone-actions">
+              <button class="btn btn-secondary btn-sm" id="chooseFiles"><svg class="icon icon-sm"><use href="#i-file"/></svg>Choose Files</button>
+              <button class="btn btn-secondary btn-sm" id="chooseFolder"><svg class="icon icon-sm"><use href="#i-folder"/></svg>Choose Folder</button>
+              <input id="fileInput" type="file" multiple hidden>
+              <input id="folderInput" type="file" multiple webkitdirectory hidden>
+            </div>
+          </div>
+          <ul class="picked-list" id="pickedList">
+            <li><span class="file-badge sm tone-clay"><svg class="icon icon-xs"><use href="#i-image"/></svg></span><div class="row-body"><p>holiday-photo-01.jpg</p><span>3.4 MB</span></div><button class="icon-btn" aria-label="Remove"><svg class="icon icon-sm"><use href="#i-x"/></svg></button></li>
+            <li><span class="file-badge sm tone-clay"><svg class="icon icon-xs"><use href="#i-image"/></svg></span><div class="row-body"><p>holiday-photo-02.jpg</p><span>3.1 MB</span></div><button class="icon-btn" aria-label="Remove"><svg class="icon icon-sm"><use href="#i-x"/></svg></button></li>
+            <li><span class="file-badge sm tone-red"><svg class="icon icon-xs"><use href="#i-video"/></svg></span><div class="row-body"><p>beach-video.mp4</p><span>1.8 GB</span></div><button class="icon-btn" aria-label="Remove"><svg class="icon icon-sm"><use href="#i-x"/></svg></button></li>
+          </ul>
+          <p class="privacy-note"><svg class="icon icon-xs"><use href="#i-shield"/></svg>Files remain on your devices and are transferred directly whenever possible.</p>
+        </div>
+      </div>
+      <footer class="modal-foot">
+        <span class="foot-meta">3 files · 1.82 GB</span>
+        <div class="foot-actions">
+          <button class="btn btn-ghost" data-close-modal>Cancel</button>
+          <button class="btn btn-primary" id="sendContinue">Continue<svg class="icon icon-sm"><use href="#i-chevron-right"/></svg></button>
+        </div>
+      </footer>
+    </div>
+
+    <div class="send-step" data-step="2">
+      <div class="confirm-summary">
+        <span class="device-ic lg"><svg class="icon" id="confirmDevIcon"><use href="#i-phone"/></svg></span>
+        <div>
+          <h4 id="confirmDevName">Sending to Galaxy Phone</h4>
+          <p><span class="badge badge-accent-soft"><svg class="icon icon-xs"><use href="#i-lock"/></svg>Encrypted</span> Direct connection · Excellent signal</p>
+        </div>
+        <div class="confirm-stats">
+          <div><b>3</b><span>files</span></div>
+          <div><b>1.82 GB</b><span>total size</span></div>
+          <div><b>~24 s</b><span>estimated</span></div>
+        </div>
+      </div>
+      <ul class="confirm-files">
+        <li><span class="file-badge sm tone-sand"><svg class="icon icon-xs"><use href="#i-image"/></svg></span><div class="row-body"><p>holiday-photo-01.jpg</p><span>JPEG image · 3.4 MB</span></div><span class="muted mono">3.4 MB</span></li>
+        <li><span class="file-badge sm tone-sand"><svg class="icon icon-xs"><use href="#i-image"/></svg></span><div class="row-body"><p>holiday-photo-02.jpg</p><span>JPEG image · 3.1 MB</span></div><span class="muted mono">3.1 MB</span></li>
+        <li><span class="file-badge sm tone-red"><svg class="icon icon-xs"><use href="#i-video"/></svg></span><div class="row-body"><p>beach-video.mp4</p><span>MP4 video · 1.8 GB</span></div><span class="muted mono">1.8 GB</span></li>
+      </ul>
+      <footer class="modal-foot">
+        <span class="foot-meta"><svg class="icon icon-xs"><use href="#i-shield"/></svg>Transferred directly · no cloud copy</span>
+        <div class="foot-actions">
+          <button class="btn btn-ghost" id="sendBack">Back</button>
+          <button class="btn btn-ghost" data-close-modal>Cancel</button>
+          <button class="btn btn-primary" id="startTransfer"><svg class="icon icon-sm"><use href="#i-send"/></svg>Start Transfer</button>
+        </div>
+      </footer>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PAIRING MODAL ============ -->
+<div class="overlay" id="ov-pairing" hidden>
+  <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="pairDialogTitle">
+    <header class="modal-head">
+      <h3 id="pairDialogTitle">Pair New Device</h3>
+      <button class="icon-btn" data-close-modal aria-label="Close"><svg class="icon"><use href="#i-x"/></svg></button>
+    </header>
+    <div class="pairing-body">
+      <p class="modal-lede" id="pairLede">Enter this single-use code on the other DropSync device.</p>
+      <div class="pair-host-session" id="pairHostSession">
+        <p class="pairing-or">Your pairing code</p>
+        <div class="pairing-code">
+          <span class="code mono">482-917</span>
+          <button class="icon-btn" id="copyCode" aria-label="Copy pairing code" title="Copy code"><svg class="icon icon-sm"><use href="#i-copy"/></svg></button>
+        </div>
+        <p class="pairing-wait"><span class="spinner"></span>Waiting for a device… <span class="muted mono" id="pairCountdown">5:00</span></p>
+        <p class="muted">This device fingerprint: <span class="mono" id="pairSelfFingerprint">—</span></p>
+      </div>
+      <div class="pair-manual" id="manualConnect">
+        <p class="pairing-or">Device not appearing automatically?</p>
+        <div class="pair-manual-row">
+          <input class="input mono" id="manualPeerAddress" inputmode="url" autocomplete="off" placeholder="100.80.1.2:47821 or laptop.tailnet.ts.net" aria-label="LAN / Tailscale address or full MagicDNS name">
+          <button class="btn btn-secondary btn-sm" id="manualPeerConnect">Find device</button>
+        </div>
+        <span>Use the local IPv4 address shown on the other device's Network page.</span>
+      </div>
+      <div class="pair-target" id="pairTarget" hidden>
+        <p class="pairing-or">Pair with <strong id="pairTargetName">device</strong></p>
+        <p class="muted">Compare this fingerprint with the one shown on that device: <span class="mono" id="pairTargetFingerprint">—</span></p>
+        <input class="input mono" id="pairCodeInput" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6-digit code" aria-label="Pairing code from the other device">
+      </div>
+    </div>
+    <footer class="modal-foot center">
+      <button class="btn btn-ghost" data-close-modal>Cancel</button>
+      <button class="btn btn-primary" id="pairConfirm" hidden><svg class="icon icon-sm"><use href="#i-shield-check"/></svg>Pair Selected Device</button>
+    </footer>
+  </div>
+</div>
+
+<!-- ============ INCOMING TRANSFER MODAL ============ -->
+<div class="overlay" id="ov-incoming" hidden>
+  <div class="modal modal-sm" role="dialog" aria-modal="true" aria-label="Incoming transfer">
+    <header class="modal-head">
+      <h3>Incoming Transfer</h3>
+      <button class="icon-btn" data-close-modal aria-label="Close"><svg class="icon"><use href="#i-x"/></svg></button>
+    </header>
+    <div class="incoming-body">
+      <div class="incoming-from">
+        <span class="device-ic lg"><svg class="icon"><use href="#i-phone"/></svg></span>
+        <div>
+          <h4 id="incomingFrom">Incoming file</h4>
+          <p>Paired device · encrypted transfer</p>
+        </div>
+      </div>
+      <ul class="confirm-files" id="incomingRequestList"></ul>
+      <dl class="spec-list">
+        <div><dt>Save to</dt><dd id="incomingSaveTo"></dd></div>
+        <div><dt>Expires</dt><dd id="incomingExpires"></dd></div>
+      </dl>
+      <p class="muted">Nothing is saved until you accept. Close this window and use Review incoming files to reopen it. Change confirmation in Settings.</p>
+      <p class="muted">Only accept files you expect. Files have not been scanned for malware.</p>
+    </div>
+    <footer class="modal-foot">
+      <button class="btn btn-ghost" id="declineTransfer">Decline</button>
+      <button class="btn btn-secondary" data-close-modal>Later</button>
+      <button class="btn btn-primary" id="acceptTransfer"><svg class="icon icon-sm"><use href="#i-download"/></svg>Accept</button>
+    </footer>
+  </div>
+</div>
+
+<!-- ============ TRUST / NEW DEVICE MODAL ============ -->
+<div class="overlay" id="ov-trust" hidden>
+  <div class="modal modal-sm" role="dialog" aria-modal="true" aria-label="New device detected">
+    <div class="trust-body">
+      <span class="trust-ic"><svg class="icon"><use href="#i-shield-check"/></svg></span>
+      <h3>New device detected</h3>
+      <p class="modal-lede"><strong>Galaxy Tab</strong> (Android · 192.168.1.73) is trying to connect to <strong>Taxperia-PC</strong>.</p>
+      <p class="trust-q">Do you want to allow this device to send files to your computer?</p>
+    </div>
+    <footer class="modal-foot">
+      <button class="btn btn-ghost" id="trustDecline">Decline</button>
+      <button class="btn btn-secondary" id="trustOnce">Allow Once</button>
+      <button class="btn btn-primary" id="trustAlways"><svg class="icon icon-sm"><use href="#i-shield-check"/></svg>Trust Device</button>
+    </footer>
+  </div>
+</div>
+
+<!-- ============ SHARED CLIPBOARD MODAL ============ -->
+<div class="overlay" id="ov-clipboard" hidden>
+  <div class="modal modal-md" role="dialog" aria-modal="true" aria-label="Shared clipboard">
+    <header class="modal-head">
+      <h3>Shared Clipboard</h3>
+      <button class="icon-btn" data-close-modal aria-label="Close"><svg class="icon"><use href="#i-x"/></svg></button>
+    </header>
+    <div class="clipboard-body">
+      <div class="clip-current">
+        <div class="clip-head"><span class="badge badge-neutral"><span class="dot accent"></span>Current clipboard · This device</span></div>
+        <p class="clip-text">DropSync local clipboard sharing is not enabled in this build.</p>
+        <div class="clip-actions">
+          <button class="btn btn-primary btn-sm" data-clip="send"><svg class="icon icon-sm"><use href="#i-send"/></svg>Send to Device</button>
+          <button class="btn btn-ghost btn-sm" data-clip="copy"><svg class="icon icon-sm"><use href="#i-copy"/></svg>Copy</button>
+        </div>
+      </div>
+      <div class="clip-entry">
+        <div class="clip-head">
+          <span class="device-ic sm"><svg class="icon icon-xs"><use href="#i-phone"/></svg></span>
+          <span class="clip-from">Copied from <strong>Galaxy Phone</strong> · just now</span>
+        </div>
+        <p class="clip-text">Clipboard history is disabled in this local build.</p>
+        <div class="clip-actions">
+          <button class="btn btn-secondary btn-sm" data-clip="copy"><svg class="icon icon-sm"><use href="#i-copy"/></svg>Copy</button>
+          <button class="btn btn-ghost btn-sm" data-clip="send"><svg class="icon icon-sm"><use href="#i-send"/></svg>Send to Device</button>
+          <button class="btn btn-ghost btn-sm" data-clip="save"><svg class="icon icon-sm"><use href="#i-download"/></svg>Save</button>
+        </div>
+      </div>
+      <div class="clip-entry">
+        <div class="clip-head">
+          <span class="device-ic sm"><svg class="icon icon-xs"><use href="#i-laptop"/></svg></span>
+          <span class="clip-from">Copied from <strong>MacBook</strong> · 12 min ago</span>
+        </div>
+        <p class="clip-text"><svg class="icon icon-xs inline-ic"><use href="#i-link"/></svg>Local-only development build</p>
+        <div class="clip-actions">
+          <button class="btn btn-secondary btn-sm" data-clip="copy"><svg class="icon icon-sm"><use href="#i-copy"/></svg>Copy</button>
+          <button class="btn btn-ghost btn-sm" data-clip="save"><svg class="icon icon-sm"><use href="#i-download"/></svg>Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ QUICK SEND OVERLAY ============ -->
+<div class="overlay top" id="ov-quicksend" hidden>
+  <div class="modal modal-xs quicksend" role="dialog" aria-modal="true" aria-label="Quick send">
+    <div class="qs-input">
+      <svg class="icon icon-sm"><use href="#i-send"/></svg>
+      <input type="text" id="qsInput" placeholder="Send to…" aria-label="Search device to send">
+      <span class="kbd">Esc</span>
+    </div>
+    <div class="qs-list" id="qsList">
+      <button class="qs-item is-selected" data-device="Galaxy Phone"><span class="device-ic sm"><svg class="icon icon-xs"><use href="#i-phone"/></svg></span><span class="row-body"><p>Galaxy Phone</p><span>Android · Excellent</span></span><span class="badge badge-neutral">42 MB/s</span></button>
+      <button class="qs-item" data-device="Taxperia-PC"><span class="device-ic sm"><svg class="icon icon-xs"><use href="#i-monitor"/></svg></span><span class="row-body"><p>Taxperia-PC</p><span>Windows · This device</span></span><span class="badge badge-neutral">Local</span></button>
+      <button class="qs-item" data-device="Raspberry Pi"><span class="device-ic sm"><svg class="icon icon-xs"><use href="#i-pi"/></svg></span><span class="row-body"><p>Raspberry Pi</p><span>Linux · Excellent</span></span><span class="badge badge-neutral">11 MB/s</span></button>
+      <button class="qs-item" data-device="MacBook"><span class="device-ic sm"><svg class="icon icon-xs"><use href="#i-laptop"/></svg></span><span class="row-body"><p>MacBook</p><span>macOS · Good</span></span><span class="badge badge-neutral">28 MB/s</span></button>
+    </div>
+    <div class="qs-foot"><span class="kbd">↑↓</span> navigate <i class="sep"></i><span class="kbd">Enter</span> send <i class="sep"></i><span class="kbd">Ctrl ⇧ S</span> toggle</div>
+  </div>
+</div>
+
+<!-- ============ GLOBAL SEARCH OVERLAY ============ -->
+<div class="overlay top" id="ov-search" hidden>
+  <div class="modal modal-md search-modal" role="dialog" aria-modal="true" aria-label="Global search">
+    <div class="qs-input">
+      <svg class="icon icon-sm"><use href="#i-search"/></svg>
+      <input type="text" id="searchInput" placeholder="Search files, devices, transfers, settings…" aria-label="Search">
+      <span class="kbd">Esc</span>
+    </div>
+    <div class="search-results" id="searchResults">
+      <div class="sr-group" data-group="Files">
+        <h6>Files</h6>
+        <button class="sr-item"><span class="file-badge sm tone-sand"><svg class="icon icon-xs"><use href="#i-file-zip"/></svg></span><div class="row-body"><p>Project_Backup.zip</p><span>2.4 GB · sending to Galaxy Phone</span></div></button>
+        <button class="sr-item"><span class="file-badge sm tone-sand"><svg class="icon icon-xs"><use href="#i-file-zip"/></svg></span><div class="row-body"><p>Project Assets</p><span>Folder · received from MacBook</span></div></button>
+      </div>
+      <div class="sr-group" data-group="Transfers">
+        <h6>Transfers</h6>
+        <button class="sr-item"><span class="file-badge sm tone-accent"><svg class="icon icon-xs"><use href="#i-swap"/></svg></span><div class="row-body"><p>Project_Backup → Galaxy Phone</p><span>Active · 72% · 94 MB/s</span></div></button>
+      </div>
+      <div class="sr-group" data-group="Devices">
+        <h6>Devices</h6>
+        <button class="sr-item"><span class="device-ic sm"><svg class="icon icon-xs"><use href="#i-monitor"/></svg></span><div class="row-body"><p>Taxperia-PC</p><span>This device · 192.168.1.25</span></div></button>
+      </div>
+      <div class="sr-group" data-group="Settings">
+        <h6>Settings</h6>
+        <button class="sr-item"><span class="file-badge sm tone-slate"><svg class="icon icon-xs"><use href="#i-gear"/></svg></span><div class="row-body"><p>Default download folder</p><span>Transfers · C:\Users\talba\Downloads</span></div></button>
+      </div>
+    </div>
+    <div class="qs-foot"><span class="kbd">↑↓</span> navigate <i class="sep"></i><span class="kbd">Enter</span> open <i class="sep"></i><span class="kbd">Ctrl K</span> toggle</div>
+  </div>
+</div>
+
+<!-- ============ NOTIFICATIONS POPOVER ============ -->
+<div class="popover" id="notifPopover" role="dialog" aria-label="Notifications" hidden>
+  <header class="popover-head">
+    <h4>Notifications</h4>
+    <div class="popover-actions">
+      <button class="btn btn-ghost btn-xs" id="markRead">Mark all as read</button>
+      <button class="btn btn-ghost btn-xs" id="clearNotifs">Clear all</button>
+    </div>
+  </header>
+  <ul class="notif-list" id="notifList">
+    <li class="is-unread">
+      <span class="notif-ic accent"><svg class="icon icon-sm"><use href="#i-radar"/></svg></span>
+      <div class="notif-body"><p><strong>New device detected</strong></p><span>Galaxy Tab wants to connect to Taxperia-PC</span><time>2 min ago</time></div>
+      <span class="unread-dot"></span>
+    </li>
+    <li class="is-unread">
+      <span class="notif-ic success"><svg class="icon icon-sm"><use href="#i-check-circle"/></svg></span>
+      <div class="notif-body"><p><strong>Transfer completed</strong></p><span>photos.zip · 2.4 GB from MacBook</span><time>15:02</time></div>
+      <span class="unread-dot"></span>
+    </li>
+    <li class="is-unread">
+      <span class="notif-ic error"><svg class="icon icon-sm"><use href="#i-alert-circle"/></svg></span>
+      <div class="notif-body"><p><strong>Transfer failed</strong></p><span>movie.mkv · connection interrupted</span><time>13:47</time></div>
+      <span class="unread-dot"></span>
+    </li>
+    <li>
+      <span class="notif-ic warn"><svg class="icon icon-sm"><use href="#i-alert-triangle"/></svg></span>
+      <div class="notif-body"><p><strong>Storage notice</strong></p><span>Transfer cache is above 8 GB</span><time>08:30</time></div>
+    </li>
+    <li>
+      <span class="notif-ic neutral"><svg class="icon icon-sm"><use href="#i-check-circle"/></svg></span>
+      <div class="notif-body"><p><strong>Device connected</strong></p><span>Raspberry Pi · trusted device</span><time>09:12</time></div>
+    </li>
+  </ul>
+  <footer class="popover-foot"><button class="btn btn-ghost btn-sm" data-nav-to="history">View all activity</button></footer>
+</div>
+
+<!-- ============ CONTEXT MENU ============ -->
+<div class="menu" id="ctxMenu" role="menu" hidden></div>
+
+<!-- ============ DRAG & DROP OVERLAY ============ -->
+<div class="drag-overlay" id="dragOverlay" hidden>
+  <div class="drag-panel">
+    <span class="drag-ic"><svg class="icon"><use href="#i-cloud-up"/></svg></span>
+    <h3>Drop to Send</h3>
+    <p>Choose a nearby device</p>
+    <div class="drag-devices">
+      <button class="drag-device" data-device="Galaxy Phone"><svg class="icon icon-sm"><use href="#i-phone"/></svg>Galaxy Phone</button>
+      <button class="drag-device" data-device="Taxperia-PC"><svg class="icon icon-sm"><use href="#i-monitor"/></svg>Taxperia-PC</button>
+      <button class="drag-device" data-device="Raspberry Pi"><svg class="icon icon-sm"><use href="#i-pi"/></svg>Raspberry Pi</button>
+      <button class="drag-device" data-device="MacBook"><svg class="icon icon-sm"><use href="#i-laptop"/></svg>MacBook</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TOASTS ============ -->
+<div class="toast-stack" id="toasts" aria-live="polite"></div>
+
+<script src="app.js"></script>
+<script src="runtime.js"></script>
+<script src="updates-ui.js"></script>
+<script src="auth-config.js"></script>
+<script src="project-info.js"></script>
+<script src="feature-settings.js"></script>
+<script src="product.js"></script>
+<script src="auth.js"></script>
+<script src="workspace-features.js"></script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+appId: com.dropsync.desktop
+productName: DropSync
+directories:
+  output: dist/desktop
+  buildResources: desktop
+files:
+  - desktop/main.js
+  - desktop/updater.js
+  - desktop/service.js
+  - desktop/vault.js
+  - desktop/icon.ico
+  - server.js
+  - src/**
+  - index.html
+  - app.js
+  - runtime.js
+  - updates-ui.js
+  - project-info.js
+  - feature-settings.js
+  - workspace-features.js
+  - update-config.json
+  - product.js
+  - auth.js
+  - auth-config.js
+  - styles.css
+  - welcome.html
+  - welcome.css
+  - welcome.js
+  - LICENSE
+  - package.json
+asar: true
+electronDownload:
+  cache: .cache/electron
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: desktop/icon.ico
+  signAndEditExecutable: true
+mac:
+  category: public.app-category.utilities
+  hardenedRuntime: true
+  target:
+    - target: dmg
+      arch: [x64, arm64]
+    - target: pkg
+      arch: [x64, arm64]
+  artifactName: DropSync-${version}-mac-${arch}.${ext}
+linux:
+  category: Utility
+  target:
+    - target: AppImage
+      arch: [x64, arm64]
+    - target: deb
+      arch: [x64, arm64]
+    - target: rpm
+      arch: [x64, arm64]
+  artifactName: DropSync-${version}-linux-${arch}.${ext}
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: DropSync
+  installerIcon: desktop/icon.ico
+  uninstallerIcon: desktop/icon.ico
+  installerSidebar: desktop/installer-sidebar.bmp
+  uninstallerSidebar: desktop/installer-sidebar.bmp
+  license: LICENSE
+  deleteAppDataOnUninstall: false
+artifactName: DropSync-Setup-${version}.${ext}

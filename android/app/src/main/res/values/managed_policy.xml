@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="policy_approval">Ask before receiving files</string>
+    <string name="policy_executable">Allow executable files</string>
+    <string name="policy_clipboard">Enable clipboard sharing</string>
+    <string name="policy_receiving">Allow incoming files</string>
+    <string name="policy_size">Maximum incoming file size in MiB</string>
+    <string name="policy_upload">Upload speed in KiB per second</string>
+    <string name="policy_download">Download speed in KiB per second</string>
+    <string name="policy_peers">Allowed paired device IDs</string>
+    <string-array name="empty_peer_entries" />
+</resources>

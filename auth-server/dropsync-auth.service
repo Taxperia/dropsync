@@ -1,0 +1,22 @@
+[Unit]
+Description=DropSync self-hosted authentication service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=dropsync-auth
+Group=dropsync-auth
+WorkingDirectory=/opt/dropsync-auth
+EnvironmentFile=/etc/dropsync-auth.env
+ExecStart=/usr/bin/node /opt/dropsync-auth/server.js
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/dropsync-auth
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,16 @@
+{
+  "name": "dropsync-auth-server",
+  "version": "0.4.0",
+  "private": true,
+  "description": "Self-hosted DropSync account and OAuth service",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check server.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "LicenseRef-DropSync-Noncommercial"
+}

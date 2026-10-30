@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<restrictions xmlns:android="http://schemas.android.com/apk/res/android">
+    <restriction android:key="requireIncomingApproval" android:title="@string/policy_approval" android:restrictionType="bool" android:defaultValue="true" />
+    <restriction android:key="allowExecutableFiles" android:title="@string/policy_executable" android:restrictionType="bool" android:defaultValue="false" />
+    <restriction android:key="clipboardEnabled" android:title="@string/policy_clipboard" android:restrictionType="bool" android:defaultValue="false" />
+    <restriction android:key="receivingEnabled" android:title="@string/policy_receiving" android:restrictionType="bool" android:defaultValue="true" />
+    <restriction android:key="maxIncomingFileMiB" android:title="@string/policy_size" android:restrictionType="integer" android:defaultValue="10240" />
+    <restriction android:key="uploadLimitKBps" android:title="@string/policy_upload" android:restrictionType="integer" android:defaultValue="0" />
+    <restriction android:key="downloadLimitKBps" android:title="@string/policy_download" android:restrictionType="integer" android:defaultValue="0" />
+    <restriction android:key="allowedPeerIds" android:title="@string/policy_peers" android:restrictionType="string" />
+</restrictions>

@@ -1,0 +1,12 @@
+services:
+  dropsync-auth:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "127.0.0.1:8787:8787"
+    volumes:
+      - dropsync-auth-data:/data
+
+volumes:
+  dropsync-auth-data:

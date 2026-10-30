@@ -1,0 +1,43 @@
+{
+  "name": "dropsync",
+  "version": "0.7.0",
+  "private": true,
+  "description": "Local-first encrypted peer-to-peer file transfer",
+  "type": "commonjs",
+  "main": "desktop/main.js",
+  "author": "Miyotu",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Taxperia/dropsync.git"
+  },
+  "homepage": "https://github.com/Taxperia/dropsync#readme",
+  "bugs": {
+    "url": "https://github.com/Taxperia/dropsync/issues"
+  },
+  "keywords": ["file-transfer", "file-sharing", "peer-to-peer", "local-first", "encryption", "tailscale", "electron", "android"],
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "check": "node scripts/check.js",
+    "test": "node --test test/*.test.js",
+    "test:android-protocol": "node scripts/test-android-protocol.js",
+    "test:android-transfer": "node scripts/test-android-transfer.js",
+    "test:android": "node scripts/smoke-android.js",
+    "test:ui": "playwright test",
+    "desktop": "electron .",
+    "test:desktop": "node scripts/smoke-desktop.js",
+    "dist:win": "electron-builder --win nsis --x64 --publish never",
+    "dist:mac": "electron-builder --mac --publish never",
+    "dist:linux": "electron-builder --linux --publish never",
+    "release:manifest": "node scripts/sign-update.js"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "license": "LicenseRef-DropSync-Noncommercial",
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "electron": "44.5.1",
+    "electron-builder": "26.15.3"
+  }
+}

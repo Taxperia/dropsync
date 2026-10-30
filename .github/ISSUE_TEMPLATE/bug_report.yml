@@ -1,0 +1,42 @@
+name: Bug report
+description: Report a reproducible problem with DropSync.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: "For security vulnerabilities, use private reporting under the Security tab. Keep personal filenames, IPs, pairing codes and tokens out of this public report."
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: Include the version of both endpoints if this involves a transfer.
+      placeholder: "Windows 0.5.1 or commit SHA; Android 0.5.1 or commit SHA"
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Platform and network
+      placeholder: "Windows 11 x64 / Android 15, local Wi-Fi or Tailscale"
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Use synthetic files and describe the smallest reproducible case.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include sanitized error text if useful.
+    validations:
+      required: true
