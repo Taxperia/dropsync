@@ -72,7 +72,7 @@ tasks.register("verifyReleaseSigningConfig") {
 
 dependencies {
     // Lightweight Ed25519/X25519 primitives used by the native LAN peer.
-    implementation "org.bouncycastle:bcprov-jdk18on:1.79"
+    implementation "org.bouncycastle:bcprov-jdk18on:1.86"
 }
 
 tasks.register("verifyDebugSigningKey") {
