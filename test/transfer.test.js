@@ -119,7 +119,8 @@ test("revoking an active sender prevents publishing its partially received file"
   const sender = new TransferManager({ store: a, logger: { warn() {} }, discovery: { get: () => ({ ...publicIdentity(b.identity), online: true, name: "Receiver", address: "127.0.0.1", port: server.address().port }) } });
   const content = crypto.randomBytes(4 * 262144), source = path.join(root, "source.bin"); fs.writeFileSync(source, content);
   const started = await sender.send({ deviceId: b.identity.deviceId, stagedFile: { id: crypto.randomUUID(), path: source, name: "revoked.bin", size: content.length, sha256: crypto.createHash("sha256").update(content).digest("hex") } });
-  await waitFor(() => revoked && sender.list().find((item) => item.id === started.id && item.status === "failed"));
+  // A reset can trigger the sender's 5-second retry before the revoked peer rejects it.
+  await waitFor(() => revoked && sender.list().find((item) => item.id === started.id && item.status === "failed"), 10_000);
   await waitFor(() => receiver.receivingIds.size === 0);
   assert.deepEqual(fs.readdirSync(b.settings.downloadDirectory), []);
 });
