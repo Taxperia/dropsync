@@ -18,6 +18,8 @@ Optional account hosting is separate from file transfer. Copy `auth-server/.env.
 
 ## Checks
 
+Dependency updates are maintained manually; this repository does not schedule Dependabot pull requests. Update npm manifests and lockfiles together, keep GitHub Actions pinned to reviewed full commit SHAs, and verify Android Gradle plugin, Gradle and JDK compatibility before changing the wrapper. Run the relevant checks before publishing a dependency update.
+
 - `npm run check` parses JavaScript without starting the application.
 - Node regression fixtures run on an isolated Docker-capable Linux host: provision `node:22-bookworm-slim`, then run `bash scripts/test-isolated.sh`. The runner disables networking, mounts source read-only, uses an empty target environment, and bounds resources. For release validation, set `DROPSYNC_TEST_IMAGE` to a reviewed image digest.
 - Java/Node protocol checks: `npm run test:android-protocol` and `npm run test:android-transfer` need JDK 17+ and Android SDK sources. Run them only in an isolated test environment.
