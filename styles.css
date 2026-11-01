@@ -1641,6 +1641,22 @@ html:not(.runtime-ready) #app, html:not(.product-ready) #app { visibility: hidde
 .entry-screen .page.is-active { width: 100%; }
 .entry-screen .account-card { margin: 0 auto; }
 .entry-screen .onboarding { min-height: auto; }
+.desktop-setup { width: 100%; max-width: 560px; margin: 0 auto; padding: 32px; display: flex; flex-direction: column; gap: 12px; }
+.setup-logo { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; background: var(--accent-dim); color: var(--accent); margin-bottom: 8px; }
+.setup-logo .icon { width: 28px; height: 28px; }
+.desktop-setup h1 { font-size: 30px; letter-spacing: -1px; }
+.setup-lede { color: var(--text-2); margin-bottom: 8px; }
+.desktop-setup label { font-weight: 600; margin-top: 8px; }
+.setup-hint { display: block; color: var(--text-3); font-size: 12px; font-weight: 400; margin-top: 4px; }
+.desktop-setup input { width: 100%; min-width: 0; min-height: 44px; }
+.setup-folder { display: flex; gap: 8px; }
+.setup-folder .btn { flex: none; }
+.setup-privacy { display: flex; gap: 10px; color: var(--text-2); font-size: 12px; margin-top: 10px; }
+.setup-privacy .icon { color: var(--accent); }
+#setupStatus { color: var(--text-2); overflow-wrap: anywhere; font-size: 13px; }
+#setupStatus:empty { display: none; }
+#setupFinish { min-height: 44px; margin-top: 4px; }
+@media (max-width: 540px) { .desktop-setup { padding: 24px; } .setup-folder { flex-direction: column; } }
 .received-actions { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
 .received-actions a { text-decoration: none; }
 .saved-location { font-size: 11px; color: var(--text-3); overflow-wrap: anywhere; }

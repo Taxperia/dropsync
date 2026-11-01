@@ -85,6 +85,11 @@ else {
       if (message.type === "file-action") {
         (async () => {
           try {
+            if (message.action === "choose-directory") {
+              if (smokeTest) { service.postMessage({ type: "file-action-result", requestId: message.requestId, result: { directory: null } }); return; }
+              const selected = await dialog.showOpenDialog(mainWindow, { title: "Choose receiving folder", defaultPath: message.target, properties: ["openDirectory", "createDirectory"] });
+              service.postMessage({ type: "file-action-result", requestId: message.requestId, result: { directory: selected.canceled ? null : selected.filePaths[0] } }); return;
+            }
             if (!path.isAbsolute(message.target) || !fs.existsSync(message.target)) throw new Error("Saved file or folder no longer exists");
             if (smokeTest) smokeLog(`FILE_ACTION_OK ${message.action} ${path.basename(message.target)}`);
             else if (message.action === "show") shell.showItemInFolder(message.target);
@@ -133,28 +138,54 @@ else {
       if (smokeTest) mainWindow.webContents.once("did-finish-load", async () => {
         smokeLog("page loaded");
         try {
-          const landing = await mainWindow.webContents.executeJavaScript("document.querySelector('h1')?.textContent.includes('Just DropSync')");
-          if (!landing) throw new Error("Desktop must start on the landing page");
-          smokeLog("landing verified");
-          const accountLoaded = new Promise((resolve) => mainWindow.webContents.once("did-finish-load", resolve));
-          await mainWindow.webContents.executeJavaScript("document.querySelector('.hero-actions a').click()");
-          await accountLoaded;
-          const entry = await mainWindow.webContents.executeJavaScript("({ account: document.querySelector('[data-page=account]')?.classList.contains('is-active'), standalone: document.documentElement.classList.contains('entry-screen'), dashboard: document.querySelector('[data-page=dashboard]')?.classList.contains('is-active') })");
-          if (!entry.account || !entry.standalone || entry.dashboard) throw new Error(`Login must precede dashboard: ${JSON.stringify(entry)}`);
-          smokeLog("login verified; dashboard hidden");
-          // Hidden smoke windows throttle animation frames; settle finite entry
-          // animations before capturing so the image is not an intermediate fade.
+          if (!process.env.DROPSYNC_SMOKE_REOPEN) {
+            let setup;
+            for (let i = 0; i < 50; i++) {
+              setup = await mainWindow.webContents.executeJavaScript("({ active: document.querySelector('[data-page=setup]')?.classList.contains('is-active'), ready: !document.querySelector('#setupFinish')?.disabled, name: document.querySelector('#setupDeviceName')?.value, directory: document.querySelector('#setupDownloadDirectory')?.value })");
+              if (setup.ready) break;
+              await new Promise((resolve) => setTimeout(resolve, 100));
+            }
+            if (!setup.active || !setup.ready || !setup.name || !setup.directory) throw new Error(`First launch must show a prefilled device setup form: ${JSON.stringify(setup)}`);
+            await mainWindow.webContents.executeJavaScript("document.getAnimations().forEach(a => { if (Number.isFinite(a.effect.getComputedTiming().endTime)) a.finish(); })");
+            if (process.env.DROPSYNC_SMOKE_SCREENSHOT) fs.writeFileSync(process.env.DROPSYNC_SMOKE_SCREENSHOT.replace(/\.png$/, "-setup.png"), (await mainWindow.webContents.capturePage()).toPNG());
+            const chosen = await mainWindow.webContents.executeJavaScript("apiRequest('/api/storage/choose', { method: 'POST' })");
+            if (chosen.directory !== null) throw new Error("Cancelling the folder picker must leave the receiving folder unchanged");
+            await mainWindow.webContents.executeJavaScript("document.querySelector('#setupDeviceName').value = '   '; document.querySelector('#desktopSetupForm').requestSubmit()");
+            const invalid = await mainWindow.webContents.executeJavaScript("({ error: document.querySelector('#setupStatus').textContent, complete: runtimeState.settings.ui['desktop-setup-complete'] })");
+            if (!invalid.error || invalid.complete) throw new Error("Invalid setup must not be marked complete");
+            const invalidFolder = path.join(directory, "setup-error.fixture"); fs.writeFileSync(invalidFolder, "synthetic");
+            await mainWindow.webContents.executeJavaScript(`document.querySelector('#setupDeviceName').value = 'Smoke desktop'; document.querySelector('#setupDownloadDirectory').value = ${JSON.stringify(invalidFolder)}; document.querySelector('#desktopSetupForm').requestSubmit()`);
+            for (let i = 0; i < 50; i++) {
+              if (await mainWindow.webContents.executeJavaScript("!document.querySelector('#setupFinish').disabled")) break;
+              await new Promise((resolve) => setTimeout(resolve, 100));
+            }
+            const failed = await mainWindow.webContents.executeJavaScript("({ error: document.querySelector('#setupStatus').textContent, complete: runtimeState.settings.ui['desktop-setup-complete'], active: document.querySelector('[data-page=setup]').classList.contains('is-active') })");
+            if (!failed.error || failed.complete || !failed.active) throw new Error("A receiving-folder save failure must keep setup open and incomplete");
+            await mainWindow.webContents.executeJavaScript(`document.querySelector('#setupDownloadDirectory').value = ${JSON.stringify(setup.directory)}`);
+            await mainWindow.webContents.executeJavaScript("document.querySelector('#setupDeviceName').value = 'Smoke desktop'; document.querySelector('#desktopSetupForm').requestSubmit()");
+            for (let i = 0; i < 50; i++) {
+              if (await mainWindow.webContents.executeJavaScript("runtimeState.settings.ui['desktop-setup-complete'] === true")) break;
+              await new Promise((resolve) => setTimeout(resolve, 100));
+            }
+            const saved = await fetch(`${origin}/api/bootstrap`).then((response) => response.json());
+            if (saved.settings.ui["desktop-setup-complete"] !== true || saved.settings.deviceName !== "Smoke desktop" || saved.settings.downloadDirectory !== setup.directory) throw new Error("Setup settings were not persisted");
+            smokeLog("first-run setup verified: validation, folder cancellation, saved device name and receiving folder");
+          }
+          await mainWindow.webContents.executeJavaScript("localStorage.clear(); sessionStorage.clear()");
+          await mainWindow.loadURL(`${origin}/index.html#dashboard`);
           await mainWindow.webContents.executeJavaScript("document.getAnimations().forEach(a => { if (Number.isFinite(a.effect.getComputedTiming().endTime)) a.finish(); })");
-          if (process.env.DROPSYNC_SMOKE_SCREENSHOT) fs.writeFileSync(process.env.DROPSYNC_SMOKE_SCREENSHOT.replace(/\.png$/, "-login.png"), (await mainWindow.webContents.capturePage()).toPNG());
-          await mainWindow.webContents.executeJavaScript("document.querySelector('#continueLocal').click()");
           let state;
           for (let i = 0; i < 50; i++) {
             state = await mainWindow.webContents.executeJavaScript("({ ready: typeof runtimeState !== 'undefined' && !runtimeState.unavailable && document.querySelector('.profile-name')?.textContent === runtimeState.self?.name && document.querySelector('#netChip')?.textContent.includes('Local LAN'), title: document.querySelector('#pageTitle')?.textContent, node: typeof window.require, process: typeof window.process })");
-            if (state.ready) break;
+            if (state.ready && state.title === "Dashboard") break;
             await new Promise((resolve) => setTimeout(resolve, 200));
           }
           const preferences = mainWindow.webContents.getLastWebPreferences();
           if (!state.ready || state.title !== "Dashboard" || state.node !== "undefined" || state.process !== "undefined" || !preferences.sandbox || !preferences.contextIsolation || preferences.nodeIntegration) throw new Error(`Desktop smoke failed: ${JSON.stringify(state)}`);
+          const resumed = await mainWindow.webContents.executeJavaScript("({ complete: runtimeState.settings.ui['desktop-setup-complete'], entry: document.documentElement.classList.contains('entry-screen') })");
+          if (!resumed.complete || resumed.entry) throw new Error("Completed setup must not repeat after reopening or clearing web storage");
+          const signedOut = await mainWindow.webContents.executeJavaScript("window.leaveDropSyncWorkspace(); location.hash = '#dashboard'; applyRoute(); ({ dashboard: document.querySelector('[data-page=dashboard]').classList.contains('is-active'), standalone: document.documentElement.classList.contains('entry-screen') })");
+          if (!signedOut.dashboard || signedOut.standalone) throw new Error("Account sign-out must keep the local desktop workspace available");
           if (process.env.DROPSYNC_SMOKE_FILE_ID) {
             const id = process.env.DROPSYNC_SMOKE_FILE_ID;
             await mainWindow.webContents.executeJavaScript(`Promise.all(['open','show'].map(action => apiRequest('/api/received/${id}/' + action, {method:'POST'})))`);
@@ -197,12 +228,12 @@ else {
           }
           await new Promise((resolve) => setTimeout(resolve, 250));
           if (process.env.DROPSYNC_SMOKE_SCREENSHOT) fs.writeFileSync(process.env.DROPSYNC_SMOKE_SCREENSHOT, (await mainWindow.webContents.capturePage()).toPNG());
-          console.log("DROPSYNC_SMOKE_OK: landing -> login -> explicit local entry -> dashboard; local service connected; renderer sandboxed; no Node globals");
+          console.log("DROPSYNC_SMOKE_OK: first-run device setup persisted; subsequent launches open dashboard; local service connected; renderer sandboxed; no Node globals");
           smokeLog("DROPSYNC_SMOKE_OK");
           shuttingDown = true; service.kill(); app.exit(0);
         } catch (error) { smokeLog(error.stack); console.error(error); shuttingDown = true; service.kill(); app.exit(1); }
       });
-      mainWindow.loadURL(`${origin}/welcome.html`);
+      mainWindow.loadURL(`${origin}/index.html#dashboard`);
     });
     service.on("exit", () => {
       if (!shuttingDown) {

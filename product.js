@@ -75,7 +75,7 @@
     <button class="btn btn-primary" id="authSubmit" type="submit">Sign in</button><button class="btn btn-ghost" type="button" id="authMode">Create an account</button></form>
     <div class="auth-providers"><button class="btn btn-secondary" data-provider="google">Google</button><button class="btn btn-secondary" data-provider="facebook">Facebook</button><button class="btn btn-secondary" data-provider="github">GitHub</button></div>
     <button class="btn btn-primary local-entry-button" id="continueLocal"><svg class="icon"><use href="#i-shield-check"/></svg>Start sharing on this device</button><p class="local-entry-hint">No account needed. Pair your devices to share securely.</p><a class="product-link" href="welcome.html">Discover DropSync →</a></div>`;
-  if (isNativeAndroid) account.querySelector(".product-link").hidden = true;
+  if (isNativeAndroid || isNativeDesktop) account.querySelector(".product-link").hidden = true;
   $("main.content").appendChild(account);
   const sidebarAccount = document.createElement("button");
   sidebarAccount.className = "nav-item"; sidebarAccount.dataset.nav = "account";
@@ -107,19 +107,85 @@
   $("#onboardNext").onclick = () => { if (slide === 2) finishOnboarding(); else { slide++; renderSlide(); } };
   $("#onboardSkip").onclick = finishOnboarding;
   renderSlide();
+  let desktopSetupComplete = !isNativeDesktop;
+  let desktopSetupLoaded = false;
+  if (isNativeDesktop) {
+    const setup = document.createElement("section");
+    setup.className = "page"; setup.dataset.page = "setup";
+    setup.innerHTML = `<form id="desktopSetupForm" class="desktop-setup card">
+      <span class="setup-logo" aria-hidden="true"><svg class="icon"><use href="#i-logo"/></svg></span>
+      <span class="eyebrow">WELCOME TO DROPSYNC</span>
+      <h1>Set up this computer.</h1><p class="setup-lede">A name, a place for your files, and you're ready to pair your devices.</p>
+      <label for="setupDeviceName">Device name<span class="setup-hint">How this computer appears on your other devices.</span></label>
+      <input id="setupDeviceName" class="input" required maxlength="48" autocomplete="off" disabled>
+      <label for="setupDownloadDirectory">Receiving folder<span class="setup-hint">Verified incoming files will be saved here.</span></label>
+      <div class="setup-folder"><input id="setupDownloadDirectory" class="input" required autocomplete="off" disabled><button id="setupChooseFolder" class="btn btn-secondary" type="button" disabled>Choose folder</button></div>
+      <p class="setup-privacy"><svg class="icon"><use href="#i-shield-check"/></svg>Pair your devices to share. Incoming files ask for your approval.</p>
+      <p id="setupStatus" role="status" aria-live="polite">Connecting to your local service…</p>
+      <button id="setupFinish" class="btn btn-primary" type="submit" disabled>Finish setup</button>
+      <span class="setup-hint">You can change these settings later. No account needed.</span>
+    </form>`;
+    $("main.content").appendChild(setup);
+    window.syncDropSyncDesktopSetup = () => {
+      if (runtimeState.unavailable || !runtimeState.settings) return;
+      desktopSetupComplete = runtimeState.settings.ui?.["desktop-setup-complete"] === true;
+      if (!desktopSetupLoaded) {
+        desktopSetupLoaded = true;
+        $("#setupDeviceName").value = runtimeState.settings.deviceName;
+        $("#setupDownloadDirectory").value = runtimeState.settings.downloadDirectory;
+        $("#setupStatus").textContent = "";
+        $$("#desktopSetupForm input, #desktopSetupForm button").forEach((control) => { control.disabled = false; });
+        for (const [key, id] of [["deviceName", "setupDeviceName"], ["downloadDirectory", "setupDownloadDirectory"]]) {
+          if (runtimeState.managedSettings?.includes(key)) $("#" + id).disabled = true;
+        }
+        if (runtimeState.managedSettings?.includes("downloadDirectory")) $("#setupChooseFolder").disabled = true;
+      }
+      applyRoute();
+    };
+    $("#setupChooseFolder").onclick = async () => {
+      const button = $("#setupChooseFolder"); button.disabled = true;
+      try {
+        const result = await apiRequest("/api/storage/choose", { method: "POST" });
+        if (result.directory) $("#setupDownloadDirectory").value = result.directory;
+        $("#setupStatus").textContent = "";
+      } catch (error) { $("#setupStatus").textContent = error.message; }
+      finally { button.disabled = false; }
+    };
+    $("#desktopSetupForm").onsubmit = async (event) => {
+      event.preventDefault();
+      const name = $("#setupDeviceName").value.trim(), directory = $("#setupDownloadDirectory").value.trim();
+      if (!name || !directory) { $("#setupStatus").textContent = "Enter a device name and receiving folder."; return; }
+      const button = $("#setupFinish"); button.disabled = true; button.textContent = "Saving…";
+      try {
+        const result = await apiRequest("/api/settings", { method: "PUT", body: { deviceName: name, downloadDirectory: directory, ui: { "desktop-setup-complete": true } } });
+        runtimeState.settings = result.settings;
+        runtimeState.self.name = result.settings.deviceName;
+        desktopSetupComplete = true;
+        window.updateDropSyncProfile?.(); renderDevices(); hydrateSettingsControls();
+        location.hash = "#dashboard"; applyRoute();
+      } catch (error) { $("#setupStatus").textContent = error.message; }
+      finally { button.disabled = false; button.textContent = "Finish setup"; }
+    };
+  }
   // This is an entry preference, not authentication or permission to access files.
-  // Only guest choice survives a tab reload; provider tokens stay in memory.
-  let entered = sessionStorage.getItem("dropsync.local-entry") === "true" || (isNativeAndroid && !authConfigured && localStorage.getItem("dropsync.onboarded.v1") === "true");
+  // The desktop shell opens the local workspace directly; provider tokens stay in memory.
+  let entered = isNativeDesktop || sessionStorage.getItem("dropsync.local-entry") === "true" || (isNativeAndroid && !authConfigured && localStorage.getItem("dropsync.onboarded.v1") === "true");
   let destination = "dashboard";
   window.resolveDropSyncRoute = (requested) => {
     if (["contacts", "ai", "assistant"].includes(requested)) requested = "nearby";
     let target = requested;
-    if (!entered) {
+    if (isNativeDesktop && !desktopSetupComplete) {
+      target = "setup";
+      if (location.hash !== "#setup") history.replaceState(null, "", `${location.pathname}${location.search}#setup`);
+    } else if (isNativeDesktop && target === "setup") {
+      target = "dashboard";
+      history.replaceState(null, "", `${location.pathname}${location.search}#dashboard`);
+    } else if (!entered) {
       if (!["account", "onboarding"].includes(requested)) destination = requested;
       target = isNativeAndroid && !localStorage.getItem("dropsync.onboarded.v1") ? "onboarding" : "account";
       if (location.hash !== `#${target}`) history.replaceState(null, "", `${location.pathname}${location.search}#${target}`);
     }
-    document.documentElement.classList.toggle("entry-screen", !entered || target === "onboarding");
+    document.documentElement.classList.toggle("entry-screen", !entered || target === "onboarding" || target === "setup");
     return target;
   };
   window.enterDropSyncWorkspace = (mode) => {
@@ -130,13 +196,14 @@
     applyRoute();
   };
   window.leaveDropSyncWorkspace = () => {
-    entered = false;
+    entered = isNativeDesktop;
     destination = "dashboard";
     sessionStorage.removeItem("dropsync.local-entry");
     location.hash = "#account";
     applyRoute();
   };
   $("#continueLocal").onclick = () => window.enterDropSyncWorkspace("local");
+  window.syncDropSyncDesktopSetup?.();
   applyRoute();
   document.documentElement.classList.add("product-ready");
 })();

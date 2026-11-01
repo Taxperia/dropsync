@@ -12,6 +12,7 @@ const escapeHTML = (value) => String(value ?? "").replace(/[&<>'"]/g, (char) => 
 // Production UI never runs simulated transfers, including while bootstrap is pending.
 let realRuntimeActive = true;
 const isNativeAndroid = typeof window.DropSyncAndroid !== "undefined";
+const isNativeDesktop = navigator.userAgent.includes("DropSyncDesktop/");
 
 /* ---------------- Toasts ---------------- */
 const toastIcons = {
@@ -301,6 +302,7 @@ const PAGE_META = {
   "settings-page": ["Settings", "Configure DropSync"],
   account: ["Account", "Your DropSync account"],
   onboarding: ["Welcome", "A little closer. A lot simpler."],
+  setup: ["Device setup", "Set up this computer for sharing"],
 };
 function parseHash() {
   const h = location.hash.replace(/^#\/?/, "");

@@ -115,7 +115,7 @@ function desktopUpdate(action, body = {}) {
 function desktopFileAction(action, target) {
   return new Promise((resolve, reject) => {
     const requestId = crypto.randomUUID();
-    const timer = setTimeout(() => { desktopActions.delete(requestId); reject(Object.assign(new Error("Desktop did not respond"), { statusCode: 503 })); }, 10_000);
+    const timer = setTimeout(() => { desktopActions.delete(requestId); reject(Object.assign(new Error("Desktop did not respond"), { statusCode: 503 })); }, action === "choose-directory" ? 120_000 : 10_000);
     desktopActions.set(requestId, { resolve, reject, timer });
     process.parentPort.postMessage({ type: "file-action", requestId, action, target });
   });
@@ -549,6 +549,9 @@ async function route(req, res) {
       if (process.parentPort) await desktopFileAction("folder", store.settings.downloadDirectory);
       else await showFolder(store.settings.downloadDirectory);
       return jsonResponse(res, 200, { ok: true });
+    }
+    if (req.method === "POST" && url.pathname === "/api/storage/choose" && process.parentPort) {
+      return jsonResponse(res, 200, await desktopFileAction("choose-directory", store.settings.downloadDirectory));
     }
     const fileMatch = url.pathname.match(/^\/api\/received\/([0-9a-f-]{36})\/(open|show|download|location)$/i);
     if (fileMatch) {

@@ -36,6 +36,7 @@ public final class MainActivity extends Activity {
     private Uri pendingAuth;
     private AndroidPeerService peerService;
     private AppUpdates appUpdates;
+    private volatile boolean destroyed;
     private final Runnable nativeChanged = () -> {
         if (!destroyed && webView != null) webView.post(() -> { if (!destroyed) webView.evaluateJavascript("window.dispatchEvent(new Event('dropsync-native-devices'))", null); });
     };
@@ -49,7 +50,6 @@ public final class MainActivity extends Activity {
     };
     private final ExecutorService imports = Executors.newSingleThreadExecutor();
     private final ExecutorService requests = Executors.newFixedThreadPool(3);
-    private volatile boolean destroyed;
     private static final String ASSET_ORIGIN = "https://appassets.androidplatform.net";
     private static final Set<String> ASSETS = new HashSet<>(Arrays.asList("index.html", "styles.css", "app.js", "runtime.js", "updates-ui.js", "project-info.js", "feature-settings.js", "workspace-features.js", "product.js", "auth.js", "auth-config.js", "welcome.html", "welcome.css", "welcome.js"));
 

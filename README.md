@@ -18,7 +18,7 @@
   <a href="#downloads">Downloads</a> · <a href="#get-started">Get started</a> · <a href="#run-from-source">Run from source</a> · <a href="SECURITY.md">Security</a> · <a href="CONTRIBUTING.md">Contribute</a>
 </p>
 
-> **Version status:** this repository contains **0.7.0 development source**. The downloadable **0.5.1 legacy previews** are older builds: they do not include the newer protocol and security changes. There is no stable release yet. Native builds and real-device validation of 0.7.0 remain pending; use synthetic files when evaluating it.
+> **Version status:** **0.7.0 preview** packages are available for Windows and Android. Windows first-run setup, reopening, file actions and incoming approval flows passed packaged smoke tests. The Android APK builds with the original development certificate; physical Android transfer and upgrade acceptance remain pending. There is no stable release yet; use synthetic files when evaluating this preview.
 
 ## Why DropSync?
 
@@ -37,22 +37,22 @@
 
 | Platform | Download | Status |
 | --- | --- | --- |
-| Windows x64 | [Windows installer (.exe)](https://github.com/Taxperia/dropsync/releases/download/legacy-v0.5.1/DropSync-Setup-0.5.1.exe) | Legacy 0.5.1 preview; not a current production build |
-| Android 8+ | [Android APK](https://github.com/Taxperia/dropsync/releases/download/legacy-v0.5.1/DropSync-Android-0.5.1-debug.apk) | Legacy 0.5.1, debug-signed; Android sends to paired computers |
+| Windows x64 | [Windows installer (.exe)](https://github.com/Taxperia/dropsync/releases/download/v0.7.0-preview.1/DropSync-Setup-0.7.0.exe) | 0.7.0 preview; first-run device setup, then direct workspace startup |
+| Android 8+ | [Android APK](https://github.com/Taxperia/dropsync/releases/download/v0.7.0-preview.1/DropSync-Android-0.7.0-debug.apk) | 0.7.0 preview, debug-signed; transfer v2 compatible |
 | macOS / Linux | Build from source | Package targets exist; native validation is pending |
 
-[Release notes and SHA-256 checksums](https://github.com/Taxperia/dropsync/releases/tag/legacy-v0.5.1) explain the exact limits of the archived packages. These binaries predate the current source; the release tag is an archive marker, not their original build revision. Do not mix 0.5.x and 0.7.x peers: the newer transfer protocol has no insecure downgrade.
+[Release notes and SHA-256 checksums](https://github.com/Taxperia/dropsync/releases/tag/v0.7.0-preview.1) list the checks and remaining limits of this preview. Update both devices to 0.7.0: mixing 0.5.x and 0.7.x peers causes the “transfer v2 is required” error. The [legacy 0.5.1 archive](https://github.com/Taxperia/dropsync/releases/tag/legacy-v0.5.1) remains available separately.
 
 EXE/APK files are distributed as release assets. They are not committed to the source repository. The Android APK uses the original development certificate; a production-signed release and store distribution are not available yet.
 
 ## Get started
 
-1. Run compatible versions of DropSync on both devices, on the same LAN or an existing Tailscale network.
+1. Install 0.7.0 on both devices. On Windows, finish the one-time setup with a device name and receiving folder; later launches open the workspace directly. Use the same LAN or an existing Tailscale network.
 2. Find the other device, compare its fingerprint through a trusted channel, and enter its six-digit pairing code.
 3. Choose files, select the paired device, and send. The receiver accepts or declines the request.
 4. Find the result in **Shared** or the receiving folder. Opening a received file is always a separate user action.
 
-With the 0.5.1 preview, Android sends to a paired computer; it cannot receive files. Keep the Android app open until sending finishes. Android's system Share menu can supply files or text to DropSync.
+Android's system Share menu can supply files or text to DropSync. Choose a receiving folder on Android before testing incoming files. Physical Android background, folder-access and bidirectional transfer acceptance remain pending.
 
 ### What's in the 0.7.0 source?
 
@@ -60,6 +60,7 @@ These features are implemented in the development source and still need runtime/
 
 | Area | Current source |
 | --- | --- |
+| Windows startup | One-time device name and receiving-folder setup, native folder chooser, durable completion, then direct workspace startup |
 | PC ↔ Android | Bidirectional transfer, receiver approval and Android system folder selection (SAF) |
 | Background sharing | Electron tray, Android foreground service, notifications and cancellation |
 | Text and clipboard | Explicit Send Text / Share Clipboard actions; no clipboard history or remote clipboard overwrite |

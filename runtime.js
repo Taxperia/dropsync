@@ -1220,7 +1220,7 @@ function connectEvents() {
     renderIncoming(JSON.parse(event.data), true);
     const result = await apiRequest("/api/transfers"); runtimeState.transfers = result.transfers; renderTransfers();
   });
-  source.addEventListener("settings", (event) => { runtimeState.settings = JSON.parse(event.data); });
+  source.addEventListener("settings", (event) => { runtimeState.settings = JSON.parse(event.data); window.syncDropSyncDesktopSetup?.(); });
   source.addEventListener("notification", (event) => { runtimeState.notifications = [JSON.parse(event.data), ...(runtimeState.notifications || [])].slice(0, 100); window.renderDropSyncNotifications?.(); });
   source.addEventListener("history-cleared", (event) => {
     const { status } = JSON.parse(event.data);
@@ -1245,6 +1245,7 @@ function connectEvents() {
     $("#app")?.classList.remove("runtime-disconnected");
     try {
       Object.assign(runtimeState, await apiRequest("/api/bootstrap"));
+      window.syncDropSyncDesktopSetup?.();
       renderDevices(); renderTransfers(); renderStaticDataAsLive(); renderIncoming(runtimeState.incomingRequests || [], true);
     } catch { $("#app")?.classList.add("runtime-disconnected"); }
   };
@@ -1441,6 +1442,7 @@ async function initializeRuntime() {
     const data = await apiRequest("/api/bootstrap");
     Object.assign(runtimeState, data);
     runtimeState.unavailable = false;
+    window.syncDropSyncDesktopSetup?.();
     realRuntimeActive = true;
     $$(".page[data-page='transfers'] .transfer-row, .page[data-page='dashboard'] [data-transfer]").forEach((row) => row.remove());
     $$(".profile-name").forEach((node) => { node.textContent = data.self.name; });
